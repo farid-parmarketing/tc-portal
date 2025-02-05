@@ -6,7 +6,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const SignUp = () => {
-  const { url } = useContext(AppContext);
+  const { url, generateToken } = useContext(AppContext);
   const [inputs, setInputs] = useState({
     firstName: "",
     lastName: "",
@@ -43,8 +43,6 @@ const SignUp = () => {
   const [isError, setisError] = useState(true);
   const signup = async (e) => {
     e.preventDefault();
-    const { firstName, lastName, email, mobile, password, companyName } =
-      inputs;
     //
     if (!inputs.firstName) {
       setMessage("Enter you name");
@@ -61,17 +59,28 @@ const SignUp = () => {
     } else if (inputs.agreement !== true) {
       setMessage("Please agree on our terms & conditions");
     } else {
-      const token = Cookies.set("tcm_client_token");
-      const res = await axios.post(`${url}/signup`, {
-        firstName,
-        lastName,
-        email,
-        mobile,
-        password,
-        companyName,
-        token,
-      });
-      if (res.data.success === true) {
+      const token = await generateToken();
+      const data = {
+        First_Name: inputs.firstName,
+        Last_Name: inputs.lastName,
+        Full_Name: `${inputs.firstName} ${inputs.lastName}`,
+        Email: inputs.email,
+        Password: inputs.password,
+        Mobile: inputs.mobile,
+        Company: inputs.companyName,
+        Created_Time: Date.now(),
+      };
+
+      const res = await axios.post(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads`,
+        [data],
+        {
+          headers: {
+            Authorization: `Zoho-oauthtoken ${token}`,
+          },
+        }
+      );
+      if (res.data.data[0].code === "SUCCESS") {
         setisError(false);
         setMessage("Account created");
         setInputs({

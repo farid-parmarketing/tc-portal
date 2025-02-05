@@ -3,7 +3,6 @@ import bigLogo from "../assets/images/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
-import Cookies from "js-cookie";
 
 const Login = () => {
   const { url, setUser, generateToken } = useContext(AppContext);
@@ -40,7 +39,14 @@ const Login = () => {
           },
         }
       );
-      console.log(res.data);
+      if (res.status === 200) {
+        setisError(false);
+        setMessage("Login successful");
+        localStorage.setItem(
+          "tc-portal-id",
+          JSON.stringify(res.data.data[0].id)
+        );
+      }
     }
   };
   //
