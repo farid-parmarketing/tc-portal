@@ -2,8 +2,84 @@ import express from "express";
 const router = express.Router();
 
 import request from "request";
-
 import multer from "multer";
+import cron from "node-cron";
+
+import Token from "../model/token.js";
+
+// generate token
+const generateToken = async () => {
+  try {
+    const options = {
+      refresh_token: process.env.refresh_token,
+      client_id: process.env.client_id,
+      client_secret: process.env.client_secret,
+      grant_type: process.env.grant_type,
+    };
+
+    var formBody = [];
+    for (var option in options) {
+      var encodedKey = encodeURIComponent(option);
+      var encodedValue = encodeURIComponent(options[option]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+
+    const response = await fetch("https://accounts.zoho.in/oauth/v2/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formBody,
+    });
+
+    if (response.status === 200) {
+      const data = await response.json();
+      await Token.deleteMany(); // Delete existing tokens
+      const newToken = new Token({ token: data.access_token });
+      await newToken.save();
+    } else {
+      console.log(
+        "Failed to fetch token:",
+        response.status,
+        response.statusText
+      );
+    }
+  } catch (error) {
+    console.error("Error generating token:", error);
+  }
+};
+cron.schedule("*/10 * * * *", generateToken);
+
+// generate token manually
+router.get("/token/generate", async (req, res) => {
+  try {
+    let latestToken = await Token.findOne().sort({ createdAt: -1 }).exec();
+    if (!latestToken) {
+      await generateToken();
+      latestToken = await Token.findOne().sort({ createdAt: -1 }).exec();
+    }
+    return res.json({ token: latestToken.token });
+  } catch (error) {
+    console.error("Error fetching or generating token:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// GET token
+router.get("/token", async (req, res) => {
+  try {
+    const token = await Token.find({});
+    if (!token) {
+      return res.status(400).json({ message: "Failed to fetch token" });
+    } else {
+      return res.status(200).json({ token });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error });
+  }
+});
 
 // GET request
 router.get("/proxy", (req, res) => {

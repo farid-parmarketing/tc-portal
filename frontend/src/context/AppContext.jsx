@@ -11,7 +11,7 @@ const AppContextProvider = ({ children }) => {
   const [count, setCount] = useState("");
   //
   const generateToken = async () => {
-    const res = await axios.get(`https://api.singledebt.in/token`);
+    const res = await axios.get(`${url}/token`);
     return res.data.token[0].token;
   };
   //

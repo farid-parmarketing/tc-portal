@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from "react";
-import bigLogo from "../assets/images/logo.png";
+import bigLogo from "../assets/images/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";

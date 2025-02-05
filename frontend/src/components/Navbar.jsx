@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../assets/images/logo.png";
+import logo from "../assets/images/logo.svg";
 import { FaUser } from "react-icons/fa";
 import { IoMdLogOut } from "react-icons/io";
 import { Link } from "react-router-dom";
