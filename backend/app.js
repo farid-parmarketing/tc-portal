@@ -24,6 +24,10 @@ app.use(express.static("./public"));
 import zohoRoute from "./controller/zoho.js";
 app.use("/", zohoRoute);
 
+app.get("/", (req, res) => {
+  res.send("Taurus Collection Portal");
+});
+
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

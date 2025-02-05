@@ -1,6 +1,8 @@
 import express from "express";
 const router = express.Router();
 
+import request from "request";
+
 import multer from "multer";
 
 // GET request

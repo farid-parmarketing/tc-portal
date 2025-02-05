@@ -31,26 +31,16 @@ const Login = () => {
       setMessage("Enter your password");
     } else {
       const token = await generateToken();
-      const res = await axios.post(`${url}/login`, {
-        email: inputs.email,
-        password: inputs.password,
-        token: token,
-      });
       //
-      if (res.data.success === true) {
-        setisError(false);
-        setMessage(res.data.message);
-        setUser(res.data.result);
-        Cookies.set("tcm_client_token", token);
-        localStorage.setItem(
-          "tcm_client_customerID",
-          JSON.stringify(res.data.result.id)
-        );
-        navigate("/", { replace: true });
-      } else if (res.data.success === false) {
-        setisError(true);
-        setMessage(res.data.message);
-      }
+      const res = await axios.get(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/search?criteria=((Email:equals:${inputs.email}))`,
+        {
+          headers: {
+            Authorization: `Zoho-oauthtoken ${token}`,
+          },
+        }
+      );
+      console.log(res.data);
     }
   };
   //

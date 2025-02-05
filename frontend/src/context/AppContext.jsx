@@ -6,16 +6,13 @@ import { useNavigate } from "react-router-dom";
 const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
-  const url = "https://customer-api.tauruscreditmanagement.ae";
+  const url = "http://localhost:8014";
   const [user, setUser] = useState(null);
   const [count, setCount] = useState("");
   //
   const generateToken = async () => {
-    const res = await axios.get(`${url}/generatetoken`);
-    if (res.status === 200) {
-      Cookies.set("tcm_client_token", res.data.access_token);
-      return res.data.access_token;
-    }
+    const res = await axios.get(`https://api.singledebt.in/token`);
+    return res.data.token[0].token;
   };
   //
   const navigate = useNavigate();
