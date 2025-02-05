@@ -1,0 +1,88 @@
+@media screen and (max-width: 992px) {
+  .home-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media screen and (max-width: 768px) {
+  .signup-container {
+    flex-direction: column;
+    height: auto;
+    overflow: auto;
+  }
+  .signup-container .signup-left {
+    margin: 0 auto;
+  }
+  .signup-right {
+    padding: 100px 8px;
+  }
+  .home-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .basic-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .profile-grid {
+    flex-direction: column-reverse;
+  }
+  .profile-grid .profile-pic {
+    margin: 0 auto;
+  }
+  .payment-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media screen and (max-width: 500px) {
+  .step-container {
+    flex-direction: row;
+  }
+  .step-grid {
+    flex-direction: column;
+    margin: 0;
+  }
+  .step-text {
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+  .step-grid .line {
+    display: none;
+  }
+  .step-container .box {
+    min-width: 50px;
+    min-height: 50px;
+  }
+  .step-grid .box svg {
+    font-size: 1.5rem;
+  }
+  .details-form {
+    grid-template-columns: 1fr;
+  }
+}
+@media screen and (max-width: 400px) {
+  .basic-details-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  nav .container {
+    gap: 25px;
+  }
+}
+@media screen and (max-width: 350px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    grid-auto-rows: 120px;
+  }
+  .home-grid .description {
+    height: 80px;
+  }
+  .upload-invoice-grid {
+    flex-direction: column;
+  }
+}
+@media screen and (max-width: 300px) {
+  .two-text-flex {
+    flex-direction: column;
+    gap: 0;
+  }
+}
