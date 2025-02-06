@@ -74,7 +74,7 @@ const AppContextProvider = ({ children }) => {
   };
   useEffect(() => {
     if (user !== null) {
-      getLengths();
+      // getLengths();
     }
   }, [user]);
   //
