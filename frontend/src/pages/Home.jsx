@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import UploadInvoiceModal from "../Modals/UploadInvoiceModal";
 //
@@ -15,10 +15,58 @@ import { FaFileInvoiceDollar } from "react-icons/fa";
 import { GiPublicSpeaker } from "react-icons/gi";
 import { FaLocationArrow } from "react-icons/fa";
 import { AppContext } from "../context/AppContext";
+import axios from "axios";
 
 const Home = () => {
-  const { lengths, user } = useContext(AppContext);
+  const { length, setLength, user, generateToken, url } =
+    useContext(AppContext);
   //
+  const fetchLength = async () => {
+    try {
+      const token = await generateToken();
+      //
+      const urls = [
+        `https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=1`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id}))&page=1`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Partially. Paid,Paid))`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Promise To Pay))`,
+        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Merit of the case))`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Legal Case))`,
+        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Client Terminated,Company Closed,Refuse to Pay,TC Terminated))`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Live))`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Disputed))`,
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:FOS Visited))`,
+      ];
+      const headers = {
+        headers: { Authorization: `Zoho-oauthtoken ${token}` },
+      };
+      //
+      const responses = await Promise.all(
+        urls.map((item) => axios.get(`${url}/proxy?url=${item}`, headers))
+      );
+      const counts = responses.map((item) => item.data.info?.count ?? 0);
+      setLength({
+        noOfDebtors: counts[0],
+        noOfInvoices: counts[1],
+        cashCollected: counts[2],
+        promiseTopay: counts[3],
+        meritsOfCases: counts[4],
+        legalActions: counts[5],
+        abscondedCases: counts[6],
+        liveInvoices: counts[7],
+        disputedInvoices: counts[8],
+        fieldVisits: counts[9],
+      });
+      //
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    if (user !== null) {
+      fetchLength();
+    }
+  }, [user]);
   return (
     <>
       <div className="container">
@@ -50,7 +98,7 @@ const Home = () => {
                   <MdCreditCardOff />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.noOfDebtors}</p> */}0
+                  <p>{length.noOfDebtors}</p>
                 </div>
               </Link>
 
@@ -60,7 +108,7 @@ const Home = () => {
                   <FaFileInvoice />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.noOfInvoices}</p> */}0
+                  <p>{length.noOfInvoices}</p>
                 </div>
               </Link>
 
@@ -70,7 +118,7 @@ const Home = () => {
                   <FaMoneyBillAlt />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.cashCollected}</p> */}0
+                  <p>{length.cashCollected}</p>
                 </div>
               </Link>
 
@@ -80,7 +128,7 @@ const Home = () => {
                   <FaMoneyBill />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.promiseTopay}</p> */}0
+                  <p>{length.promiseTopay}</p>
                 </div>
               </Link>
 
@@ -90,7 +138,7 @@ const Home = () => {
                   <FaSuitcase />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.meritsOfCases}</p> */}0
+                  <p>{length.meritsOfCases}</p>
                 </div>
               </Link>
 
@@ -100,7 +148,7 @@ const Home = () => {
                   <GoLaw />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.legalActions}</p> */}0
+                  <p>{length.legalActions}</p>
                 </div>
               </Link>
 
@@ -110,7 +158,7 @@ const Home = () => {
                   <RiCalendarCloseLine />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.abscondedCases}</p> */}0
+                  <p>{length.abscondedCases}</p>
                 </div>
               </Link>
 
@@ -120,7 +168,7 @@ const Home = () => {
                   <FaFileInvoiceDollar />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.liveInvoices}</p> */}0
+                  <p>{length.liveInvoices}</p>
                 </div>
               </Link>
 
@@ -130,7 +178,7 @@ const Home = () => {
                   <GiPublicSpeaker />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.disputedInvoices}</p> */}0
+                  <p>{length.disputedInvoices}</p>
                 </div>
               </Link>
 
@@ -140,7 +188,7 @@ const Home = () => {
                   <FaLocationArrow />
                 </div>
                 <div className="description">
-                  {/* <p>{lengths.fieldVisits}</p> */}0
+                  <p>{length.fieldVisits}</p>
                 </div>
               </Link>
             </div>

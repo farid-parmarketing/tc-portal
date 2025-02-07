@@ -43,6 +43,7 @@ const Auth = ({ Component }) => {
   useEffect(() => {
     getUser();
   }, []);
+  //
   return (
     <>
       {loading ? (

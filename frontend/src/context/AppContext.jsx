@@ -51,33 +51,44 @@ const AppContextProvider = ({ children }) => {
     }
   };
   //
-  const [lengths, setLengths] = useState(null);
   const [loading, setLoading] = useState(true);
-  const getLengths = async () => {
-    try {
-      const token = Cookies.get("tcm_client_token");
-      const res = await axios.post(`${url}/getlengths`, {
-        token,
-        customerID: user.id,
-      });
-      if (res.data.success === false) {
-        setLoading(false);
-        await generateToken();
-        await getUser();
-      } else if (res.data.success === true) {
-        setLoading(false);
-        setLengths(res.data.result);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    if (user !== null) {
-      // getLengths();
-    }
-  }, [user]);
   //
+  const [length, setLength] = useState({
+    noOfDebtors: 0,
+    noOfInvoices: 0,
+    cashCollected: 0,
+    promiseTopay: 0,
+    meritsOfCases: 0,
+    legalActions: 0,
+    abscondedCases: 0,
+    liveInvoices: 0,
+    disputedInvoices: 0,
+    fieldVisits: 0,
+  });
+  const [data1, setData1] = useState({
+    noOfDebtors: [],
+    noOfInvoices: [],
+    cashCollected: [],
+    promiseTopay: [],
+    meritsOfCases: [],
+    legalActions: [],
+    abscondedCases: [],
+    liveInvoices: [],
+    disputedInvoices: [],
+    fieldVisits: [],
+  });
+  const [data2, setData2] = useState({
+    noOfDebtors: [],
+    noOfInvoices: [],
+    cashCollected: [],
+    promiseTopay: [],
+    meritsOfCases: [],
+    legalActions: [],
+    abscondedCases: [],
+    liveInvoices: [],
+    disputedInvoices: [],
+    fieldVisits: [],
+  });
   return (
     <AppContext.Provider
       value={{
@@ -87,8 +98,13 @@ const AppContextProvider = ({ children }) => {
         getUser,
         count,
         generateToken,
-        lengths,
         loading,
+        length,
+        setLength,
+        data1,
+        setData1,
+        data2,
+        setData2,
       }}
     >
       {children}

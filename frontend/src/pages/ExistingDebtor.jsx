@@ -7,7 +7,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 
 const ExistingDebtor = () => {
-  const { url, generateToken, user } = useContext(AppContext);
+  const { url, generateToken, user, data1, data2 } = useContext(AppContext);
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
       View
@@ -24,8 +24,6 @@ const ExistingDebtor = () => {
     </Tooltip>
   );
   //
-  const [data1, setData1] = useState([]);
-  const [data2, setData2] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const searchData = () => {};
   const [page, setPage] = useState(1);
@@ -40,25 +38,25 @@ const ExistingDebtor = () => {
     }
   };
   //
-  const getData = async () => {
-    try {
-      const token = await generateToken();
-      const res = await axios.get(
-        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=${page}`,
-        {
-          headers: {
-            Authorization: `Zoho-oauthtoken ${token}`,
-          },
-        }
-      );
-      console.log(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getData();
-  }, []);
+  // const getData = async () => {
+  //   try {
+  //     const token = await generateToken();
+  //     const res = await axios.get(
+  //       `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=${page}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Zoho-oauthtoken ${token}`,
+  //         },
+  //       }
+  //     );
+  //     console.log(res.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   getData();
+  // }, []);
   return (
     <>
       <div className="container">
@@ -84,7 +82,7 @@ const ExistingDebtor = () => {
               </Link>
             </div>
           </div>
-          {data1.length === 0 ? (
+          {data2.noOfDebtors.length === 0 ? (
             <p className="text-center py-4">No data found</p>
           ) : (
             <>
@@ -102,7 +100,7 @@ const ExistingDebtor = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data2.map((item, index) => {
+                    {data2.noOfDebtors.map((item, index) => {
                       return (
                         <tr key={index}>
                           <td>{index + 1}</td>
