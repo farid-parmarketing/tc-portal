@@ -515,17 +515,14 @@ nav svg,
   width: 100%;
 }
 /*  */
-.table-container::-webkit-scrollbar,
-body::-webkit-scrollbar {
+.table-container::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
-.table-container::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track {
+.table-container::-webkit-scrollbar-track {
   border-radius: var(--radius);
 }
-.table-container::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb {
+.table-container::-webkit-scrollbar-thumb {
   background: #000;
   border-radius: var(--radius);
 }

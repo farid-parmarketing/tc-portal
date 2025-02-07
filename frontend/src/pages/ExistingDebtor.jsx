@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
+import Loader from "../components/Loader";
 
 const ExistingDebtor = () => {
   const { url, generateToken, user } = useContext(AppContext);
@@ -24,8 +25,8 @@ const ExistingDebtor = () => {
     </Tooltip>
   );
   //
+  const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
-  const searchData = () => {};
   const [page, setPage] = useState(1);
   const [moreRecords, setMoreRecords] = useState(false);
   const [data1, setData1] = useState([]);
@@ -53,19 +54,43 @@ const ExistingDebtor = () => {
         }
       );
       if (res.status === 200) {
-        console.log(res.data.info);
         const { more_records } = res.data.info;
         setMoreRecords(more_records);
-        setData1(res.data.data);
-        setData2(res.data.data);
+        //
+        console.log(res.data.info);
+        const data = res.data.data;
+        data.forEach((obj) => {
+          for (let item in obj) {
+            if (obj[item] === null) {
+              obj[item] = "";
+            }
+          }
+        });
+        //
+        setData1(data);
+        setData2(data);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     getData();
   }, [page]);
+  //
+  const searchData = () => {
+    const filtered = data1.filter((item) => {
+      return (
+        item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        item.Debtor_Phone_Number.toLowerCase().includes(
+          searchInput.toLowerCase()
+        )
+      );
+    });
+    setData2(filtered);
+  };
   return (
     <>
       <div className="container">
@@ -91,69 +116,94 @@ const ExistingDebtor = () => {
               </Link>
             </div>
           </div>
-          {data2.length === 0 ? (
-            <p className="text-center py-4">No data found</p>
+          {loading ? (
+            <Loader />
           ) : (
             <>
-              <div className="table-container">
-                <table className="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <th style={{ minWidth: "50px" }}>Sr</th>
-                      <th style={{ minWidth: "400px" }}>debtor Company name</th>
-                      <th style={{ minWidth: "150px" }}>Number</th>
-                      <th style={{ minWidth: "150px" }}>Status</th>
-                      <th style={{ minWidth: "200px" }}>Outstanding Amount</th>
-                      <th style={{ minWidth: "200px" }}>Amount recovered</th>
-                      <th style={{ minWidth: "250px" }}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data2.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.Debtor_Name}</td>
-                          <td>{item.Debtor_Phone_Number}</td>
-                          <td>{item.Debtor_Status}</td>
-                          <td>{item.Total_Outstanding_Amount}</td>
-                          <td>9876543210</td>
-                          <td>
-                            <div className="d-flex align-items-center justify-content-start gap-2">
-                              <OverlayTrigger
-                                placement="top"
-                                overlay={tooltip1}
-                              >
-                                <button className="button">
-                                  <FaEye />
-                                </button>
-                              </OverlayTrigger>
-                              <OverlayTrigger
-                                placement="top"
-                                overlay={tooltip2}
-                              >
-                                <button className="button">
-                                  <FaFile />
-                                </button>
-                              </OverlayTrigger>
-                              <OverlayTrigger
-                                placement="top"
-                                overlay={tooltip3}
-                              >
-                                <button className="button">
-                                  <FaUsers />
-                                </button>
-                              </OverlayTrigger>
-                            </div>
-                          </td>
+              {data2.length === 0 ? (
+                <p className="text-center py-4">No data found</p>
+              ) : (
+                <>
+                  <div className="table-container">
+                    <table className="table table-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th style={{ minWidth: "50px" }}>Sr</th>
+                          <th style={{ minWidth: "400px" }}>
+                            debtor Company name
+                          </th>
+                          <th style={{ minWidth: "150px" }}>Number</th>
+                          <th style={{ minWidth: "150px" }}>Status</th>
+                          <th style={{ minWidth: "200px" }}>
+                            Outstanding Amount
+                          </th>
+                          <th style={{ minWidth: "200px" }}>
+                            Amount recovered
+                          </th>
+                          <th style={{ minWidth: "250px" }}>Action</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody>
+                        {data2.map((item, index) => {
+                          return (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.Name}</td>
+                              <td>{item.Debtor_Phone_Number}</td>
+                              <td>{item.Debtor_Status}</td>
+                              <td>
+                                Rs{" "}
+                                {item.Balance_O_D === ""
+                                  ? 0
+                                  : item.Balance_O_D.toLocaleString("en-IN")}
+                              </td>
+                              <td>
+                                Rs{" "}
+                                {item.Payment_Received === ""
+                                  ? 0
+                                  : item.Payment_Received.toLocaleString(
+                                      "en-IN"
+                                    )}
+                              </td>
+                              <td>
+                                <div className="d-flex align-items-center justify-content-start gap-2">
+                                  <OverlayTrigger
+                                    placement="top"
+                                    overlay={tooltip1}
+                                  >
+                                    <button className="button">
+                                      <FaEye />
+                                    </button>
+                                  </OverlayTrigger>
+                                  <OverlayTrigger
+                                    placement="top"
+                                    overlay={tooltip2}
+                                  >
+                                    <button className="button">
+                                      <FaFile />
+                                    </button>
+                                  </OverlayTrigger>
+                                  <OverlayTrigger
+                                    placement="top"
+                                    overlay={tooltip3}
+                                  >
+                                    <button className="button">
+                                      <FaUsers />
+                                    </button>
+                                  </OverlayTrigger>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
             </>
           )}
+
           <div className="d-flex align-items-center justify-content-end gap-2 pt-2">
             <button
               className={`button ${page === 1 ? "disabled" : ""}`}
