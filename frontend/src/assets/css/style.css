@@ -121,6 +121,10 @@ textarea.input {
   overflow: hidden;
   background-image: var(--bs-gradient) !important;
 }
+.button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 .button::after,
 .secondary-button::after {
   content: "";

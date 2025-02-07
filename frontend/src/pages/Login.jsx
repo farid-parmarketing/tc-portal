@@ -46,6 +46,7 @@ const Login = () => {
           "tc-portal-id",
           JSON.stringify(res.data.data[0].id)
         );
+        navigate("/", { replace: true });
       }
     }
   };

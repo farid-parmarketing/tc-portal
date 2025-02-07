@@ -7,7 +7,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 
 const ExistingDebtor = () => {
-  const { url, generateToken, user, data1, data2 } = useContext(AppContext);
+  const { url, generateToken, user } = useContext(AppContext);
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
       View
@@ -27,36 +27,45 @@ const ExistingDebtor = () => {
   const [searchInput, setSearchInput] = useState("");
   const searchData = () => {};
   const [page, setPage] = useState(1);
+  const [moreRecords, setMoreRecords] = useState(false);
+  const [data1, setData1] = useState([]);
+  const [data2, setData2] = useState([]);
   const increment = () => {
-    setPage(page + 1);
+    if (moreRecords) {
+      setPage((prev) => prev + 1);
+    }
   };
   const decrement = () => {
     if (page > 1) {
-      setPage(page - 1);
-    } else {
-      setPage(1);
+      setPage((prev) => prev - 1);
     }
   };
   //
-  // const getData = async () => {
-  //   try {
-  //     const token = await generateToken();
-  //     const res = await axios.get(
-  //       `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=${page}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Zoho-oauthtoken ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log(res.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   getData();
-  // }, []);
+  const getData = async () => {
+    try {
+      const token = await generateToken();
+      const res = await axios.get(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=${page}`,
+        {
+          headers: {
+            Authorization: `Zoho-oauthtoken ${token}`,
+          },
+        }
+      );
+      if (res.status === 200) {
+        console.log(res.data.info);
+        const { more_records } = res.data.info;
+        setMoreRecords(more_records);
+        setData1(res.data.data);
+        setData2(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, [page]);
   return (
     <>
       <div className="container">
@@ -82,7 +91,7 @@ const ExistingDebtor = () => {
               </Link>
             </div>
           </div>
-          {data2.noOfDebtors.length === 0 ? (
+          {data2.length === 0 ? (
             <p className="text-center py-4">No data found</p>
           ) : (
             <>
@@ -100,7 +109,7 @@ const ExistingDebtor = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data2.noOfDebtors.map((item, index) => {
+                    {data2.map((item, index) => {
                       return (
                         <tr key={index}>
                           <td>{index + 1}</td>
@@ -146,14 +155,20 @@ const ExistingDebtor = () => {
             </>
           )}
           <div className="d-flex align-items-center justify-content-end gap-2 pt-2">
-            <button className="button" onClick={decrement}>
+            <button
+              className={`button ${page === 1 ? "disabled" : ""}`}
+              onClick={decrement}
+              disabled={page === 1}
+            >
               <FaMinus />
             </button>
+
             <h2>{page}</h2>
+
             <button
-              className="button"
+              className={`button ${!moreRecords ? "disabled" : ""}`}
               onClick={increment}
-              disabled={data1.length === 0 ? true : false}
+              disabled={!moreRecords}
             >
               <FaPlus />
             </button>
