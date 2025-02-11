@@ -58,7 +58,7 @@ td {
 }
 th {
   text-transform: capitalize;
-  background: #000 !important;
+  background: var(--primary) !important;
   color: #fff !important;
 }
 a {
@@ -523,7 +523,7 @@ nav svg,
   border-radius: var(--radius);
 }
 .table-container::-webkit-scrollbar-thumb {
-  background: #000;
+  background: var(--primary);
   border-radius: var(--radius);
 }
 /*  */

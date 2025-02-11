@@ -1,33 +1,76 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Header from "../components/Header";
 import useFetch from "../utility/useFetch";
 import Loader from "../components/Loader";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
 
 const CashCollected = () => {
-  const { data1, data2, setData2, isLoading, page, increment, decrement } =
-    useFetch("cashcollected");
+  const { url, generateToken, user } = useContext(AppContext);
   //
   const [calculations, setCalculations] = useState({
     outstanding: 0,
     recovered: 0,
   });
-  useEffect(() => {
-    if (data1.length !== 0) {
-      let outstanding = 0;
-      let recovered = 0;
-      data1.forEach((item) => {
-        outstanding += item.Total_Outstanding_Amount;
-        recovered += item.Amount_Paid;
-      });
-      setCalculations({
-        outstanding: outstanding.toFixed(2),
-        recovered: recovered.toFixed(2),
-      });
-    }
-  }, [data1]);
   //
+  const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [moreRecords, setMoreRecords] = useState(false);
+  const [data1, setData1] = useState([]);
+  const [data2, setData2] = useState([]);
+  //
+  const increment = () => {
+    if (moreRecords) {
+      setPage((prev) => prev + 1);
+    }
+  };
+  const decrement = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  };
+  //
+  const getData = async () => {
+    try {
+      const token = await generateToken();
+      const res = await axios.get(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Paid))&page=${page}`,
+        {
+          headers: {
+            Authorization: `Zoho-oauthtoken ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (res.status === 200) {
+        const { more_records } = res.data.info;
+        setMoreRecords(more_records);
+        console.log(res.data.info);
+        //
+        const data = res.data.data;
+        data.forEach((obj) => {
+          for (let item in obj) {
+            if (obj[item] === null) {
+              obj[item] = "";
+            }
+          }
+        });
+        //
+        setData1(data);
+        setData2(data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, [page]);
+  //
   const searchData = () => {
     const filtered = data1.filter((item) => {
       return (
@@ -43,7 +86,7 @@ const CashCollected = () => {
     <>
       <div className="container">
         <Header title="Cash collected" />
-        {isLoading ? (
+        {loading ? (
           <Loader />
         ) : (
           <>
@@ -80,6 +123,7 @@ const CashCollected = () => {
                         <th style={{ minWidth: "200px" }}>date of payment</th>
                         <th style={{ minWidth: "200px" }}>total outstanding</th>
                         <th style={{ minWidth: "200px" }}>amount recovered</th>
+                        <th style={{ minWidth: "200px" }}>Invoice status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -95,6 +139,7 @@ const CashCollected = () => {
                             <td>{item.Amount_Paid_Date}</td>
                             <td>{item.Total_Outstanding_Amount}</td>
                             <td>{item.Amount_Paid}</td>
+                            <td>{item.Invoice_Status}</td>
                           </tr>
                         );
                       })}
@@ -112,15 +157,21 @@ const CashCollected = () => {
                 </div>
               </>
             )}
-            <div className="pagination-buttons">
-              <button className="button" onClick={decrement}>
+            <div className="d-flex align-items-center justify-content-end gap-2 pt-2">
+              <button
+                className={`button ${page === 1 ? "disabled" : ""}`}
+                onClick={decrement}
+                disabled={page === 1}
+              >
                 <FaMinus />
               </button>
+
               <h2>{page}</h2>
+
               <button
-                className="button"
+                className={`button ${!moreRecords ? "disabled" : ""}`}
                 onClick={increment}
-                disabled={data1.length === 0 ? true : false}
+                disabled={!moreRecords}
               >
                 <FaPlus />
               </button>

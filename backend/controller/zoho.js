@@ -4,6 +4,7 @@ const router = express.Router();
 import request from "request";
 import multer from "multer";
 import cron from "node-cron";
+import fetch from "node-fetch";
 
 import Token from "../model/token.js";
 
@@ -220,6 +221,99 @@ router.put("/proxy", upload.any(), async (req, res) => {
       error: error.message,
       stack: error.stack,
     });
+  }
+});
+
+//
+async function fetchAllPages(
+  zohoURL,
+  authorization,
+  accumulatedData = [],
+  page = 1
+) {
+  try {
+    // Append or update the page parameter in URL
+    const apiUrl = new URL(zohoURL);
+    apiUrl.searchParams.set("page", page);
+
+    // Fetch data from the given URL
+    const response = await fetch(apiUrl.toString(), {
+      method: "GET",
+      headers: { Authorization: authorization },
+    });
+
+    // Handle 204 No Content case
+    if (response.status === 204) {
+      console.log("Received 204 No Content, returning empty array.");
+      return []; // Return empty array immediately
+    }
+
+    // Read response text to check if it's empty
+    const text = await response.text();
+
+    if (!text) {
+      console.log("Empty response body received, returning empty array.");
+      return [];
+    }
+
+    // Parse JSON safely
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      console.error("Invalid JSON response:", text);
+      return []; // Return empty array if parsing fails
+    }
+
+    if (!data || !data.data) {
+      return accumulatedData; // Return already fetched data if no valid response
+    }
+
+    // Store current page data
+    accumulatedData.push(...data.data);
+
+    // Check if there are more records
+    if (data.info?.more_records) {
+      return await fetchAllPages(
+        zohoURL,
+        authorization,
+        accumulatedData,
+        page + 1
+      );
+    }
+
+    return accumulatedData;
+  } catch (error) {
+    console.error("Error fetching pages:", error);
+    return []; // Return empty array in case of error
+  }
+}
+
+router.get("/data-proxy", async (req, res) => {
+  try {
+    const { zohoURL } = req.query;
+    const authorization = req.header("Authorization");
+
+    if (!zohoURL) {
+      return res
+        .status(400)
+        .json({ error: "'url' query parameter is required" });
+    }
+
+    if (!authorization) {
+      return res
+        .status(401)
+        .json({ error: "Authorization header is required" });
+    }
+
+    const results = await fetchAllPages(zohoURL, authorization);
+
+    return res.json({ data: results });
+  } catch (error) {
+    console.error("Error in proxy:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 });
 

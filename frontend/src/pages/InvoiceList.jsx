@@ -23,53 +23,57 @@ const InvoiceList = () => {
   //
   const increment = () => {
     if (moreRecords) {
-      setPage((prev) => prev + 1);
+      setPage((prevPage) => prevPage + 1); // Functional update ensures latest value
     }
   };
+
   const decrement = () => {
-    if (page > 1) {
-      setPage((prev) => prev - 1);
-    }
+    setPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
   };
+
   //
-  const getData = async () => {
-    try {
-      const token = await generateToken();
-      const res = await axios.get(
-        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id}))&page=${page}`,
-        {
-          headers: {
-            Authorization: `Zoho-oauthtoken ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (res.status === 200) {
-        const { more_records } = res.data.info;
-        setMoreRecords(more_records);
-        console.log(res.data.info);
-        //
-        const data = res.data.data;
-        data.forEach((obj) => {
-          for (let item in obj) {
-            if (obj[item] === null) {
-              obj[item] = "";
-            }
-          }
-        });
-        //
-        setData1(data);
-        setData2(data);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    getData();
-  }, [page]);
+    console.log(page);
+    const fetchData = async () => {
+      try {
+        const token = await generateToken();
+        const res = await axios.get(
+          `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:321959000000612317))&page=2`,
+          {
+            headers: {
+              Authorization: `Zoho-oauthtoken ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (res.status === 200) {
+          const { more_records } = res.data.info;
+          setMoreRecords(more_records);
+          console.log(res.data.info);
+
+          const data = res.data.data;
+          data.forEach((obj) => {
+            for (let item in obj) {
+              if (obj[item] === null) {
+                obj[item] = "";
+              }
+            }
+          });
+
+          setData1(data);
+          setData2(data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [page]); // Dependency array ensures `fetchData` runs when `page` updates
+
   //
   const searchData = () => {
     const filtered = data1.filter((item) => {

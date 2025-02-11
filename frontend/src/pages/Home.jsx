@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import UploadInvoiceModal from "../Modals/UploadInvoiceModal";
 //
@@ -15,58 +15,10 @@ import { FaFileInvoiceDollar } from "react-icons/fa";
 import { GiPublicSpeaker } from "react-icons/gi";
 import { FaLocationArrow } from "react-icons/fa";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
 
 const Home = () => {
-  const { length, setLength, user, generateToken, url } =
-    useContext(AppContext);
+  const { length, user } = useContext(AppContext);
   //
-  const fetchLength = async () => {
-    try {
-      const token = await generateToken();
-      //
-      const urls = [
-        `https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=1`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id}))&page=1`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Partially. Paid,Paid))`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Promise To Pay))`,
-        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Merit of the case))`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Legal Case))`,
-        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Client Terminated,Company Closed,Refuse to Pay,TC Terminated))`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Live))`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Disputed))`,
-        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:FOS Visited))`,
-      ];
-      const headers = {
-        headers: { Authorization: `Zoho-oauthtoken ${token}` },
-      };
-      //
-      const responses = await Promise.all(
-        urls.map((item) => axios.get(`${url}/proxy?url=${item}`, headers))
-      );
-      const counts = responses.map((item) => item.data.info?.count ?? 0);
-      setLength({
-        noOfDebtors: counts[0],
-        noOfInvoices: counts[1],
-        cashCollected: counts[2],
-        promiseTopay: counts[3],
-        meritsOfCases: counts[4],
-        legalActions: counts[5],
-        abscondedCases: counts[6],
-        liveInvoices: counts[7],
-        disputedInvoices: counts[8],
-        fieldVisits: counts[9],
-      });
-      //
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    if (user !== null) {
-      fetchLength();
-    }
-  }, [user]);
   return (
     <>
       <div className="container">

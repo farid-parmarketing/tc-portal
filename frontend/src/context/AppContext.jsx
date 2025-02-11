@@ -65,30 +65,16 @@ const AppContextProvider = ({ children }) => {
     disputedInvoices: 0,
     fieldVisits: 0,
   });
-  const [data1, setData1] = useState({
-    noOfDebtors: [],
-    noOfInvoices: [],
-    cashCollected: [],
-    promiseTopay: [],
-    meritsOfCases: [],
-    legalActions: [],
-    abscondedCases: [],
-    liveInvoices: [],
-    disputedInvoices: [],
-    fieldVisits: [],
-  });
-  const [data2, setData2] = useState({
-    noOfDebtors: [],
-    noOfInvoices: [],
-    cashCollected: [],
-    promiseTopay: [],
-    meritsOfCases: [],
-    legalActions: [],
-    abscondedCases: [],
-    liveInvoices: [],
-    disputedInvoices: [],
-    fieldVisits: [],
-  });
+  const [noOfDebtors, setnoOfDebtors] = useState([]);
+  const [noOfInvoices, setnoOfInvoices] = useState([]);
+  const [cashCollected, setcashCollected] = useState([]);
+  const [promiseTopay, setpromiseTopay] = useState([]);
+  const [meritsOfCases, setmeritsOfCases] = useState([]);
+  const [legalActions, setlegalActions] = useState([]);
+  const [abscondedCases, setabscondedCases] = useState([]);
+  const [liveInvoices, setliveInvoices] = useState([]);
+  const [disputedInvoices, setdisputedInvoices] = useState([]);
+  const [fieldVisits, setfieldVisits] = useState([]);
   return (
     <AppContext.Provider
       value={{
@@ -101,10 +87,16 @@ const AppContextProvider = ({ children }) => {
         loading,
         length,
         setLength,
-        data1,
-        setData1,
-        data2,
-        setData2,
+        setnoOfDebtors,
+        setnoOfInvoices,
+        setcashCollected,
+        setpromiseTopay,
+        setmeritsOfCases,
+        setlegalActions,
+        setabscondedCases,
+        setliveInvoices,
+        setdisputedInvoices,
+        setfieldVisits,
       }}
     >
       {children}

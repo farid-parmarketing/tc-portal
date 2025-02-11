@@ -6,7 +6,23 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 
 const Auth = ({ Component }) => {
-  const { url, generateToken, setUser } = useContext(AppContext);
+  const {
+    url,
+    generateToken,
+    user,
+    setUser,
+    setLength,
+    setnoOfDebtors,
+    setnoOfInvoices,
+    setcashCollected,
+    setpromiseTopay,
+    setmeritsOfCases,
+    setlegalActions,
+    setabscondedCases,
+    setliveInvoices,
+    setdisputedInvoices,
+    setfieldVisits,
+  } = useContext(AppContext);
   const navigate = useNavigate();
   //
   const [loading, setLoading] = useState(true);
@@ -44,6 +60,156 @@ const Auth = ({ Component }) => {
     getUser();
   }, []);
   //
+  const fetchLength = async (zohoURL, title) => {
+    try {
+      const token = await generateToken();
+      const res = await axios.get(`${url}/data-proxy?zohoURL=${zohoURL}`, {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${token}`,
+        },
+      });
+      return {
+        data: res.data,
+        title,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    if (user !== null) {
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details`,
+        "noOfDebtors"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setnoOfDebtors(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id}))`,
+        "noOfInvoices"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setnoOfInvoices(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Partially. Paid,Paid))`,
+        "cashCollected"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setcashCollected(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Promise To Pay))`,
+        "promiseTopay"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setpromiseTopay(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Merit of the case))`,
+        "meritsOfCases"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setmeritsOfCases(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Legal Case))`,
+        "legalActions"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setlegalActions(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtors_Details/search?criteria=((Lead:equals:${user.id})and(Debtor_Status:equals:Client Terminated,Company Closed,Refuse to Pay,TC Terminated))`,
+        "abscondedCases"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setabscondedCases(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Live))`,
+        "liveInvoices"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setliveInvoices(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:Disputed))`,
+        "disputedInvoices"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setdisputedInvoices(result.data);
+        }
+      });
+      //
+      fetchLength(
+        `https://www.zohoapis.in/crm/v2/Debtor_Invoices/search?criteria=((Lead_Name:equals:${user.id})and(Invoice_Status:equals:FOS Visited))`,
+        "fieldVisits"
+      ).then((result) => {
+        if (result) {
+          setLength((prevData) => ({
+            ...prevData, // Keep previous state
+            [result.title]: result.data.data.length, // Update only the matched key
+          }));
+          setfieldVisits(result.data);
+        }
+      });
+    }
+  }, [user]);
+
   return (
     <>
       {loading ? (
