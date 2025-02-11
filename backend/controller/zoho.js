@@ -281,7 +281,13 @@ async function fetchAllPages(
         page + 1
       );
     }
-
+    accumulatedData.map((obj) => {
+      for (let i in obj) {
+        if (obj[i] === null) {
+          obj[i] = "-";
+        }
+      }
+    });
     return accumulatedData;
   } catch (error) {
     console.error("Error fetching pages:", error);

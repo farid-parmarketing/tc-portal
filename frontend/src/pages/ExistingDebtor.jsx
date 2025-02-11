@@ -4,11 +4,10 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
-import Loader from "../components/Loader";
+
+const ITEMS_PER_PAGE = 50;
 
 const ExistingDebtor = () => {
-  const { url, generateToken, user } = useContext(AppContext);
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
       View
@@ -25,72 +24,27 @@ const ExistingDebtor = () => {
     </Tooltip>
   );
   //
-  const [loading, setLoading] = useState(true);
+  const { noOfDebtors } = useContext(AppContext);
+  //
   const [searchInput, setSearchInput] = useState("");
-  const [page, setPage] = useState(1);
-  const [moreRecords, setMoreRecords] = useState(false);
-  const [data1, setData1] = useState([]);
-  const [data2, setData2] = useState([]);
-  const increment = () => {
-    if (moreRecords) {
-      setPage((prev) => prev + 1);
-    }
-  };
-  const decrement = () => {
-    if (page > 1) {
-      setPage((prev) => prev - 1);
-    }
-  };
-  //
-  const getData = async () => {
-    try {
-      const token = await generateToken();
-      const res = await axios.get(
-        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details?page=${page}`,
-        {
-          headers: {
-            Authorization: `Zoho-oauthtoken ${token}`,
-          },
-        }
-      );
-      if (res.status === 200) {
-        const { more_records } = res.data.info;
-        setMoreRecords(more_records);
-        //
-        console.log(res.data.info);
-        const data = res.data.data;
-        data.forEach((obj) => {
-          for (let item in obj) {
-            if (obj[item] === null) {
-              obj[item] = "";
-            }
-          }
-        });
-        //
-        setData1(data);
-        setData2(data);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    getData();
-  }, [page]);
-  //
-  const searchData = () => {
-    const filtered = data1.filter((item) => {
-      return (
-        item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
-        item.Debtor_Phone_Number.toLowerCase().includes(
-          searchInput.toLowerCase()
-        )
-      );
+  const searchFilter = () => {
+    const filtered = noOfDebtors.filter((item) => {
+      return item.Name.toLowerCase().includes(searchInput.toLowerCase());
     });
-    setData2(filtered);
+    setData(filtered);
   };
+  //
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    if (noOfDebtors) {
+      setData(noOfDebtors);
+    }
+  }, [noOfDebtors]);
+  //
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(noOfDebtors.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
   return (
     <>
       <div className="container">
@@ -104,8 +58,8 @@ const ExistingDebtor = () => {
               className="input"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyUp={searchData}
-              disabled={data1.length === 0 ? true : false}
+              onKeyUp={searchFilter}
+              disabled={noOfDebtors.length === 0 ? true : false}
             />
             <div className="d-flex align-items-sm-center align-items-start justify-content-end gap-2 flex-sm-row flex-column">
               <Link to="/newdebtor" className="button bg-gradient">
@@ -116,109 +70,95 @@ const ExistingDebtor = () => {
               </Link>
             </div>
           </div>
-          {loading ? (
-            <Loader />
+          {data.length === 0 ? (
+            <p className="text-center py-4">No data found</p>
           ) : (
             <>
-              {data2.length === 0 ? (
-                <p className="text-center py-4">No data found</p>
-              ) : (
-                <>
-                  <div className="table-container">
-                    <table className="table table-bordered table-hover">
-                      <thead>
-                        <tr>
-                          <th style={{ minWidth: "50px" }}>Sr</th>
-                          <th style={{ minWidth: "400px" }}>
-                            debtor Company name
-                          </th>
-                          <th style={{ minWidth: "150px" }}>Number</th>
-                          <th style={{ minWidth: "150px" }}>Status</th>
-                          <th style={{ minWidth: "200px" }}>
-                            Outstanding Amount
-                          </th>
-                          <th style={{ minWidth: "200px" }}>
-                            Amount recovered
-                          </th>
-                          <th style={{ minWidth: "250px" }}>Action</th>
+              <div className="table-container">
+                <table className="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th style={{ minWidth: "50px" }}>Sr</th>
+                      <th style={{ minWidth: "400px" }}>debtor Company name</th>
+                      <th style={{ minWidth: "150px" }}>Number</th>
+                      <th style={{ minWidth: "150px" }}>Status</th>
+                      <th style={{ minWidth: "200px" }}>Outstanding Amount</th>
+                      <th style={{ minWidth: "200px" }}>Amount recovered</th>
+                      <th style={{ minWidth: "250px" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.slice(startIndex, endIndex).map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{item.Name}</td>
+                          <td>{item.Debtor_Phone_Number}</td>
+                          <td>{item.Debtor_Status}</td>
+                          <td>
+                            {item.Balance_O_D !== "-" && "Rs"}{" "}
+                            {item.Balance_O_D}
+                          </td>
+                          <td>
+                            {item.Payment_Received !== "-" && "Rs"}{" "}
+                            {item.Payment_Received}
+                          </td>
+                          <td>
+                            <div className="d-flex align-items-center justify-content-start gap-2">
+                              <OverlayTrigger
+                                placement="top"
+                                overlay={tooltip1}
+                              >
+                                <button className="button">
+                                  <FaEye />
+                                </button>
+                              </OverlayTrigger>
+                              <OverlayTrigger
+                                placement="top"
+                                overlay={tooltip2}
+                              >
+                                <button className="button">
+                                  <FaFile />
+                                </button>
+                              </OverlayTrigger>
+                              <OverlayTrigger
+                                placement="top"
+                                overlay={tooltip3}
+                              >
+                                <button className="button">
+                                  <FaUsers />
+                                </button>
+                              </OverlayTrigger>
+                            </div>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {data2.map((item, index) => {
-                          return (
-                            <tr key={index}>
-                              <td>{index + 1}</td>
-                              <td>{item.Name}</td>
-                              <td>{item.Debtor_Phone_Number}</td>
-                              <td>{item.Debtor_Status}</td>
-                              <td>
-                                Rs{" "}
-                                {item.Balance_O_D === ""
-                                  ? 0
-                                  : item.Balance_O_D.toLocaleString("en-IN")}
-                              </td>
-                              <td>
-                                Rs{" "}
-                                {item.Payment_Received === ""
-                                  ? 0
-                                  : item.Payment_Received.toLocaleString(
-                                      "en-IN"
-                                    )}
-                              </td>
-                              <td>
-                                <div className="d-flex align-items-center justify-content-start gap-2">
-                                  <OverlayTrigger
-                                    placement="top"
-                                    overlay={tooltip1}
-                                  >
-                                    <button className="button">
-                                      <FaEye />
-                                    </button>
-                                  </OverlayTrigger>
-                                  <OverlayTrigger
-                                    placement="top"
-                                    overlay={tooltip2}
-                                  >
-                                    <button className="button">
-                                      <FaFile />
-                                    </button>
-                                  </OverlayTrigger>
-                                  <OverlayTrigger
-                                    placement="top"
-                                    overlay={tooltip3}
-                                  >
-                                    <button className="button">
-                                      <FaUsers />
-                                    </button>
-                                  </OverlayTrigger>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </>
           )}
 
           <div className="d-flex align-items-center justify-content-end gap-2 pt-2">
             <button
-              className={`button ${page === 1 ? "disabled" : ""}`}
-              onClick={decrement}
-              disabled={page === 1}
+              className={`button ${currentPage === 1 ? "disabled" : ""}`}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
             >
               <FaMinus />
             </button>
 
-            <h2>{page}</h2>
+            <h2>{currentPage} </h2>
 
             <button
-              className={`button ${!moreRecords ? "disabled" : ""}`}
-              onClick={increment}
-              disabled={!moreRecords}
+              className={`button ${
+                currentPage === totalPages ? "disabled" : ""
+              }`}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
             >
               <FaPlus />
             </button>

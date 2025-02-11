@@ -87,7 +87,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setnoOfDebtors(result.data);
+          setnoOfDebtors(result.data.data);
         }
       });
       //
@@ -100,7 +100,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setnoOfInvoices(result.data);
+          setnoOfInvoices(result.data.data);
         }
       });
       //
@@ -113,7 +113,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setcashCollected(result.data);
+          setcashCollected(result.data.data);
         }
       });
       //
@@ -126,7 +126,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setpromiseTopay(result.data);
+          setpromiseTopay(result.data.data);
         }
       });
       //
@@ -139,7 +139,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setmeritsOfCases(result.data);
+          setmeritsOfCases(result.data.data);
         }
       });
       //
@@ -152,7 +152,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setlegalActions(result.data);
+          setlegalActions(result.data.data);
         }
       });
       //
@@ -165,7 +165,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setabscondedCases(result.data);
+          setabscondedCases(result.data.data);
         }
       });
       //
@@ -178,7 +178,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setliveInvoices(result.data);
+          setliveInvoices(result.data.data);
         }
       });
       //
@@ -191,7 +191,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setdisputedInvoices(result.data);
+          setdisputedInvoices(result.data.data);
         }
       });
       //
@@ -204,7 +204,7 @@ const Auth = ({ Component }) => {
             ...prevData, // Keep previous state
             [result.title]: result.data.data.length, // Update only the matched key
           }));
-          setfieldVisits(result.data);
+          setfieldVisits(result.data.data);
         }
       });
     }

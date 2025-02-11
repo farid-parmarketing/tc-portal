@@ -75,6 +75,7 @@ const AppContextProvider = ({ children }) => {
   const [liveInvoices, setliveInvoices] = useState([]);
   const [disputedInvoices, setdisputedInvoices] = useState([]);
   const [fieldVisits, setfieldVisits] = useState([]);
+  //
   return (
     <AppContext.Provider
       value={{
@@ -86,6 +87,16 @@ const AppContextProvider = ({ children }) => {
         generateToken,
         loading,
         length,
+        noOfDebtors,
+        noOfInvoices,
+        cashCollected,
+        promiseTopay,
+        meritsOfCases,
+        legalActions,
+        abscondedCases,
+        liveInvoices,
+        disputedInvoices,
+        fieldVisits,
         setLength,
         setnoOfDebtors,
         setnoOfInvoices,
