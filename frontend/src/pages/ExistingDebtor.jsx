@@ -5,9 +5,32 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
 
-const ITEMS_PER_PAGE = 50;
-
 const ExistingDebtor = () => {
+  const { noOfDebtors, ITEMS_PER_PAGE } = useContext(AppContext);
+  //
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    if (noOfDebtors) {
+      setData(noOfDebtors);
+    }
+  }, [noOfDebtors]);
+  //
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(noOfDebtors.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  //
+  const [searchInput, setSearchInput] = useState("");
+  const searchData = () => {
+    const filtered = noOfDebtors.filter((item) => {
+      return (
+        item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        item.Debtor_Phone_Number.includes(searchInput.toLowerCase())
+      );
+    });
+    setData(filtered);
+  };
+  //
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
       View
@@ -23,28 +46,6 @@ const ExistingDebtor = () => {
       All directors or partners
     </Tooltip>
   );
-  //
-  const { noOfDebtors } = useContext(AppContext);
-  //
-  const [searchInput, setSearchInput] = useState("");
-  const searchFilter = () => {
-    const filtered = noOfDebtors.filter((item) => {
-      return item.Name.toLowerCase().includes(searchInput.toLowerCase());
-    });
-    setData(filtered);
-  };
-  //
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    if (noOfDebtors) {
-      setData(noOfDebtors);
-    }
-  }, [noOfDebtors]);
-  //
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(noOfDebtors.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
   return (
     <>
       <div className="container">
@@ -58,7 +59,7 @@ const ExistingDebtor = () => {
               className="input"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyUp={searchFilter}
+              onKeyUp={searchData}
               disabled={noOfDebtors.length === 0 ? true : false}
             />
             <div className="d-flex align-items-sm-center align-items-start justify-content-end gap-2 flex-sm-row flex-column">

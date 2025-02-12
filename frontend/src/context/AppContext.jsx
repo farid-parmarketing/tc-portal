@@ -76,6 +76,7 @@ const AppContextProvider = ({ children }) => {
   const [disputedInvoices, setdisputedInvoices] = useState([]);
   const [fieldVisits, setfieldVisits] = useState([]);
   //
+  const ITEMS_PER_PAGE = 10;
   return (
     <AppContext.Provider
       value={{
@@ -108,6 +109,7 @@ const AppContextProvider = ({ children }) => {
         setliveInvoices,
         setdisputedInvoices,
         setfieldVisits,
+        ITEMS_PER_PAGE,
       }}
     >
       {children}
