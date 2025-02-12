@@ -261,7 +261,6 @@ async function fetchAllPages(
     try {
       data = JSON.parse(text);
     } catch (error) {
-      console.error("Invalid JSON response:", text);
       return []; // Return empty array if parsing fails
     }
 

@@ -23,10 +23,11 @@ const MeritsOfCases = () => {
   const searchData = () => {
     const filtered = meritsOfCases.filter((item) => {
       return (
-        item.Debtor_Name1.name
-          .toLowerCase()
-          .includes(searchInput.toLowerCase()) ||
-        item.Invoice_Ref_No.toLowerCase().includes(searchInput.toLowerCase())
+        item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        item.Debtor_Phone_Number.toLowerCase().includes(
+          searchInput.toLowerCase()
+        ) ||
+        item.Email.toLowerCase().includes(searchInput.toLowerCase())
       );
     });
     setData(filtered);
@@ -78,7 +79,7 @@ const MeritsOfCases = () => {
                           <td>{item.Debtor_Phone_Number}</td>
                           <td>{item.Email}</td>
                           <td>{item.Debtor_Status}</td>
-                          <td>9876543210</td>
+                          <td>{item.Merits_Case_List}</td>
                           <td>{item.Case_Status}</td>
                         </tr>
                       );

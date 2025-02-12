@@ -649,3 +649,9 @@ footer svg {
   bottom: 0;
   background: #fff;
 }
+.sentence {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
