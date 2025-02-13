@@ -29,6 +29,13 @@ const BasicDetails = () => {
             </div>
             <div>
               <div className="name-icon-flex">
+                <FaBriefcase />
+                <p className="bold">User name</p>
+              </div>
+              <p>{user.Full_Name}</p>
+            </div>
+            <div>
+              <div className="name-icon-flex">
                 <FaGlobeAmericas />
                 <p className="bold">Website</p>
               </div>
@@ -36,10 +43,10 @@ const BasicDetails = () => {
             </div>
             <div>
               <div className="name-icon-flex">
-                <FaClipboardList />
-                <p className="bold">Type of entity</p>
+                <FaGlobeAmericas />
+                <p className="bold">Email address</p>
               </div>
-              <p>{user.Type_of_Entity}</p>
+              <p>{user.Email}</p>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -47,6 +54,13 @@ const BasicDetails = () => {
                 <p className="bold">Mobile number</p>
               </div>
               <p>{user.Mobile}</p>
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaClipboardList />
+                <p className="bold">Type of entity</p>
+              </div>
+              <p>{user.Type_of_Entity}</p>
             </div>
             <div>
               <div className="name-icon-flex">

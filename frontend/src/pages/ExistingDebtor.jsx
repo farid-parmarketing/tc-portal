@@ -1,9 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FaEye, FaFile, FaUsers, FaPlus, FaMinus } from "react-icons/fa";
+import {
+  FaEye,
+  FaFile,
+  FaUsers,
+  FaPlus,
+  FaMinus,
+  FaFilter,
+} from "react-icons/fa";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
+import FilterModal from "../Modals/FilterModal";
 
 const ExistingDebtor = () => {
   const { noOfDebtors, ITEMS_PER_PAGE } = useContext(AppContext);
@@ -20,16 +28,41 @@ const ExistingDebtor = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   //
+  const [filters, setFilters] = useState({
+    status: "",
+  });
+  const handleFilters = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+  const clearFilter = () => {
+    setSearchInput("");
+    setFilters({
+      status: "",
+    });
+    setData(noOfDebtors);
+  };
   const [searchInput, setSearchInput] = useState("");
   const searchData = () => {
     const filtered = noOfDebtors.filter((item) => {
-      return (
+      const matchesSearch =
         item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
-        item.Debtor_Phone_Number.includes(searchInput.toLowerCase())
-      );
+        item.Debtor_Phone_Number.includes(searchInput);
+      const matchesStatus =
+        !filters.status ||
+        item.Debtor_Status.trim().toLowerCase() ===
+          filters.status.trim().toLowerCase();
+
+      return matchesSearch && matchesStatus;
     });
     setData(filtered);
   };
+  useEffect(() => {
+    searchData();
+  }, [searchInput, filters.status]);
   //
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
@@ -52,16 +85,24 @@ const ExistingDebtor = () => {
         <Header title="Debtor's details" />
         <>
           <div className="d-flex align-items-md-center align-items-start justify-content-between gap-2 mb-4 flex-md-row flex-column">
-            <input
-              type="text"
-              placeholder="Search"
-              style={{ width: "100%", maxWidth: "200px" }}
-              className="input"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyUp={searchData}
-              disabled={noOfDebtors.length === 0 ? true : false}
-            />
+            <div className="d-flex align-items-center justify-content-start gap-2">
+              <input
+                type="text"
+                placeholder="Search"
+                style={{ width: "100%", maxWidth: "200px" }}
+                className="input"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                disabled={noOfDebtors.length === 0 ? true : false}
+              />
+              <button
+                className="button"
+                data-bs-toggle="modal"
+                data-bs-target="#filterModal"
+              >
+                <FaFilter />
+              </button>
+            </div>
             <div className="d-flex align-items-sm-center align-items-start justify-content-end gap-2 flex-sm-row flex-column">
               <Link to="/newdebtor" className="button bg-gradient">
                 Add a new debtor
@@ -166,6 +207,12 @@ const ExistingDebtor = () => {
           </div>
         </>
       </div>
+      <FilterModal
+        filters={filters}
+        handleFilters={handleFilters}
+        searchData={searchData}
+        clearFilter={clearFilter}
+      />
     </>
   );
 };

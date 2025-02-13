@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { FaEye, FaPlus, FaMinus } from "react-icons/fa";
+import { FaEye, FaPlus, FaMinus, FaFilter } from "react-icons/fa";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
+import FilterModal from "../Modals/FilterModal";
 
 const InvoiceList = () => {
   const { noOfInvoices, ITEMS_PER_PAGE } = useContext(AppContext);
@@ -22,14 +23,22 @@ const InvoiceList = () => {
   const [searchInput, setSearchInput] = useState("");
   const searchData = () => {
     const filtered = noOfInvoices.filter((item) => {
-      return (
+      const matchesSearch =
         item.Debtor_Name1.name
           .toLowerCase()
           .includes(searchInput.toLowerCase()) ||
-        item.Invoice_Ref_No.toLowerCase().includes(searchInput.toLowerCase())
-      );
+        item.Invoice_Ref_No.includes(searchInput);
+
+      return matchesSearch;
     });
     setData(filtered);
+  };
+  useEffect(() => {
+    searchData();
+  }, [searchInput]);
+  const clearFilter = () => {
+    setSearchInput("");
+    setData(noOfInvoices);
   };
   //
   const tooltip1 = (
@@ -43,16 +52,24 @@ const InvoiceList = () => {
         <Header title="All invoices list" />
         <>
           <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
-            <input
-              type="text"
-              placeholder="Search"
-              style={{ width: "100%", maxWidth: "200px" }}
-              className="input"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyUp={searchData}
-              disabled={noOfInvoices.length === 0 ? true : false}
-            />
+            <div className="d-flex align-items-center justify-content-start gap-2">
+              <input
+                type="text"
+                placeholder="Search"
+                style={{ width: "100%", maxWidth: "200px" }}
+                className="input"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                disabled={noOfInvoices.length === 0 ? true : false}
+              />
+              <button
+                className="button"
+                data-bs-toggle="modal"
+                data-bs-target="#filterModal"
+              >
+                <FaFilter />
+              </button>
+            </div>
             <div className="d-flex align-items-center justify-content-betweeb gap-2">
               <button className="button">csv</button>
               <button className="button">excel</button>
@@ -140,6 +157,7 @@ const InvoiceList = () => {
           </div>
         </>
       </div>
+      <FilterModal searchData={searchData} clearFilter={clearFilter} />
     </>
   );
 };

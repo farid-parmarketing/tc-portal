@@ -52,8 +52,6 @@ const Auth = ({ Component }) => {
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
@@ -207,6 +205,7 @@ const Auth = ({ Component }) => {
           setfieldVisits(result.data.data);
         }
       });
+      setLoading(false);
     }
   }, [user]);
 

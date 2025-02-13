@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -51,8 +51,6 @@ const AppContextProvider = ({ children }) => {
     }
   };
   //
-  const [loading, setLoading] = useState(true);
-  //
   const [length, setLength] = useState({
     noOfDebtors: 0,
     noOfInvoices: 0,
@@ -76,7 +74,7 @@ const AppContextProvider = ({ children }) => {
   const [disputedInvoices, setdisputedInvoices] = useState([]);
   const [fieldVisits, setfieldVisits] = useState([]);
   //
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 500;
   return (
     <AppContext.Provider
       value={{
@@ -86,7 +84,6 @@ const AppContextProvider = ({ children }) => {
         getUser,
         count,
         generateToken,
-        loading,
         length,
         noOfDebtors,
         noOfInvoices,

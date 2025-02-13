@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
-import useFetch from "../utility/useFetch";
-import Loader from "../components/Loader";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { AppContext } from "../context/AppContext";
 

@@ -244,7 +244,6 @@ async function fetchAllPages(
 
     // Handle 204 No Content case
     if (response.status === 204) {
-      console.log("Received 204 No Content, returning empty array.");
       return []; // Return empty array immediately
     }
 
@@ -252,7 +251,6 @@ async function fetchAllPages(
     const text = await response.text();
 
     if (!text) {
-      console.log("Empty response body received, returning empty array.");
       return [];
     }
 
