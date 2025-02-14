@@ -58,9 +58,9 @@ const AbscondedCases = () => {
                       <th style={{ minWidth: "400px" }}>
                         debtor's company name
                       </th>
-                      <th style={{ minWidth: "200px" }}>debtor's status</th>
-                      <th style={{ minWidth: "200px" }}>absconded date</th>
-                      <th style={{ minWidth: "200px" }}>absconded informed</th>
+                      <th style={{ minWidth: "150px" }}>debtor's status</th>
+                      <th style={{ minWidth: "150px" }}>absconded date</th>
+                      <th style={{ minWidth: "150px" }}>absconded informed</th>
                     </tr>
                   </thead>
                   <tbody>

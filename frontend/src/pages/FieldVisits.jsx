@@ -66,7 +66,7 @@ const FieldVisits = () => {
                       </th>
                       <th style={{ minWidth: "150px" }}>No of visits</th>
                       <th style={{ minWidth: "200px" }}>action</th>
-                      <th style={{ minWidth: "100px" }}>PTP</th>
+                      <th style={{ minWidth: "150px" }}>PTP</th>
                       <th style={{ minWidth: "400px" }}>Feedback</th>
                     </tr>
                   </thead>

@@ -61,9 +61,9 @@ const DisputedInvoices = () => {
                         debtor's company name
                       </th>
                       <th style={{ minWidth: "150px" }}>invoice date</th>
-                      <th style={{ minWidth: "200px" }}>reference number</th>
-                      <th style={{ minWidth: "200px" }}>outstanding</th>
-                      <th style={{ minWidth: "200px" }}>disputed informed</th>
+                      <th style={{ minWidth: "150px" }}>reference number</th>
+                      <th style={{ minWidth: "150px" }}>outstanding</th>
+                      <th style={{ minWidth: "150px" }}>disputed informed</th>
                     </tr>
                   </thead>
                   <tbody>

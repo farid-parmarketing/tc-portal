@@ -77,11 +77,11 @@ const PromiseToPay = () => {
                     <tr>
                       <th style={{ minWidth: "50px" }}>Sr</th>
                       <th style={{ minWidth: "400px" }}>debtor Company name</th>
-                      <th style={{ minWidth: "200px" }}>invoice number</th>
-                      <th style={{ minWidth: "200px" }}>invoice date</th>
-                      <th style={{ minWidth: "200px" }}>frequency</th>
-                      <th style={{ minWidth: "200px" }}>total outstanding</th>
-                      <th style={{ minWidth: "200px" }}>Promise to pay</th>
+                      <th style={{ minWidth: "150px" }}>invoice number</th>
+                      <th style={{ minWidth: "150px" }}>invoice date</th>
+                      <th style={{ minWidth: "150px" }}>frequency</th>
+                      <th style={{ minWidth: "150px" }}>total outstanding</th>
+                      <th style={{ minWidth: "150px" }}>Promise to pay</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -29,40 +29,80 @@ const ExistingDebtor = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   //
   const [filters, setFilters] = useState({
+    searchInput: "",
     status: "",
+    outstanding: {
+      min: 0,
+      max: 100000000,
+    },
   });
-  const handleFilters = (e) => {
-    const { name, value } = e.target;
-    setFilters({
-      ...filters,
-      [name]: value,
-    });
+  const handleSearchInput = (e) => {
+    setFilters((prev) => ({
+      ...prev,
+      searchInput: e.target.value,
+    }));
   };
-  const clearFilter = () => {
-    setSearchInput("");
-    setFilters({
-      status: "",
-    });
-    setData(noOfDebtors);
+  const handleStatusChange = (e) => {
+    setFilters((prev) => ({
+      ...prev,
+      status: e.target.value,
+    }));
   };
-  const [searchInput, setSearchInput] = useState("");
+  const handleOutstandingChange = (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const rangeValue = selectedOption.getAttribute("data-range");
+    if (rangeValue) {
+      const [start, end] = rangeValue.split("-").map(Number);
+
+      setFilters((prev) => ({
+        ...prev,
+        outstanding: {
+          start: start || 0,
+          end: end || Infinity,
+        },
+      }));
+    }
+  };
+  //
   const searchData = () => {
     const filtered = noOfDebtors.filter((item) => {
       const matchesSearch =
-        item.Name.toLowerCase().includes(searchInput.toLowerCase()) ||
-        item.Debtor_Phone_Number.includes(searchInput);
+        item.Name.toLowerCase().includes(filters.searchInput.toLowerCase()) ||
+        item.Debtor_Phone_Number.includes(filters.searchInput);
+
       const matchesStatus =
         !filters.status ||
         item.Debtor_Status.trim().toLowerCase() ===
           filters.status.trim().toLowerCase();
 
-      return matchesSearch && matchesStatus;
+      const balance = parseFloat(item.Balance_O_D);
+
+      const matchOutstanding =
+        (!filters.outstanding.start && !filters.outstanding.end) ||
+        (balance >= filters.outstanding.start &&
+          balance <= filters.outstanding.end) ||
+        (filters.outstanding.end === Infinity &&
+          balance >= filters.outstanding.start);
+
+      return matchesSearch && matchesStatus && matchOutstanding;
     });
+
     setData(filtered);
+  };
+
+  const clearFilter = () => {
+    setFilters({
+      searchInput: "",
+      status: "",
+      outstanding: {
+        start: "",
+        end: "",
+      },
+    });
   };
   useEffect(() => {
     searchData();
-  }, [searchInput, filters.status]);
+  }, [filters]);
   //
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
@@ -91,8 +131,8 @@ const ExistingDebtor = () => {
                 placeholder="Search"
                 style={{ width: "100%", maxWidth: "200px" }}
                 className="input"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                value={filters.searchInput}
+                onChange={handleSearchInput}
                 disabled={noOfDebtors.length === 0 ? true : false}
               />
               <button
@@ -123,7 +163,7 @@ const ExistingDebtor = () => {
                       <th style={{ minWidth: "50px" }}>Sr</th>
                       <th style={{ minWidth: "400px" }}>debtor Company name</th>
                       <th style={{ minWidth: "150px" }}>Number</th>
-                      <th style={{ minWidth: "150px" }}>Status</th>
+                      <th style={{ minWidth: "230px" }}>Status</th>
                       <th style={{ minWidth: "200px" }}>Outstanding Amount</th>
                       <th style={{ minWidth: "200px" }}>Amount recovered</th>
                       <th style={{ minWidth: "250px" }}>Action</th>
@@ -209,7 +249,9 @@ const ExistingDebtor = () => {
       </div>
       <FilterModal
         filters={filters}
-        handleFilters={handleFilters}
+        setFilters={setFilters}
+        handleStatusChange={handleStatusChange}
+        handleOutstandingChange={handleOutstandingChange}
         searchData={searchData}
         clearFilter={clearFilter}
       />

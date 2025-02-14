@@ -3,7 +3,6 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaEye, FaPlus, FaMinus, FaFilter } from "react-icons/fa";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
-import FilterModal from "../Modals/FilterModal";
 
 const InvoiceList = () => {
   const { noOfInvoices, ITEMS_PER_PAGE } = useContext(AppContext);
@@ -83,11 +82,11 @@ const InvoiceList = () => {
                     <th style={{ minWidth: "50px" }}>Sr</th>
                     <th style={{ minWidth: "400px" }}>debtor Company name</th>
                     <th style={{ minWidth: "150px" }}>invoice Number</th>
-                    <th style={{ minWidth: "200px" }}>invoice amount</th>
-                    <th style={{ minWidth: "200px" }}>invoice date</th>
-                    <th style={{ minWidth: "200px" }}>invoice due date</th>
-                    <th style={{ minWidth: "200px" }}>interest percentage</th>
-                    <th style={{ minWidth: "200px" }}>interest Amount</th>
+                    <th style={{ minWidth: "150px" }}>invoice amount</th>
+                    <th style={{ minWidth: "150px" }}>invoice date</th>
+                    <th style={{ minWidth: "170px" }}>invoice due date</th>
+                    <th style={{ minWidth: "170px" }}>interest percentage</th>
+                    <th style={{ minWidth: "150px" }}>interest Amount</th>
                     <th style={{ minWidth: "100px" }}>Action</th>
                   </tr>
                 </thead>
@@ -157,7 +156,7 @@ const InvoiceList = () => {
           </div>
         </>
       </div>
-      <FilterModal searchData={searchData} clearFilter={clearFilter} />
+      {/* <FilterModal searchData={searchData} clearFilter={clearFilter} /> */}
     </>
   );
 };

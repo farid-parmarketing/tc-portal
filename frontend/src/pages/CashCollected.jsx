@@ -79,10 +79,10 @@ const CashCollected = () => {
                       <th style={{ minWidth: "400px" }}>debtor Company name</th>
                       <th style={{ minWidth: "150px" }}>invoice date</th>
                       <th style={{ minWidth: "170px" }}>reference Number</th>
-                      <th style={{ minWidth: "200px" }}>date of payment</th>
-                      <th style={{ minWidth: "200px" }}>Invoice status</th>
-                      <th style={{ minWidth: "200px" }}>total outstanding</th>
-                      <th style={{ minWidth: "200px" }}>amount recovered</th>
+                      <th style={{ minWidth: "150px" }}>date of payment</th>
+                      <th style={{ minWidth: "150px" }}>Invoice status</th>
+                      <th style={{ minWidth: "170px" }}>total outstanding</th>
+                      <th style={{ minWidth: "170px" }}>amount recovered</th>
                     </tr>
                   </thead>
                   <tbody>

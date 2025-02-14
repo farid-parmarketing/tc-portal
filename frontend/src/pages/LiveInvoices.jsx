@@ -64,8 +64,8 @@ const LiveInvoices = () => {
                       <th style={{ minWidth: "400px" }}>
                         debtor's company name
                       </th>
-                      <th style={{ minWidth: "200px" }}>invoice date</th>
-                      <th style={{ minWidth: "200px" }}>reference number</th>
+                      <th style={{ minWidth: "150px" }}>invoice date</th>
+                      <th style={{ minWidth: "160px" }}>reference number</th>
                       <th style={{ minWidth: "150px" }}>outstanding</th>
                       <th style={{ minWidth: "150px" }}>No of days</th>
                       <th style={{ minWidth: "150px" }}>Interest charged</th>
