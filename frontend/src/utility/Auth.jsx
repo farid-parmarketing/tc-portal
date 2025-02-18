@@ -82,8 +82,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setnoOfDebtors(result.data.data);
         }
@@ -95,8 +95,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setnoOfInvoices(result.data.data);
         }
@@ -107,9 +107,13 @@ const Auth = ({ Component }) => {
         "cashCollected"
       ).then((result) => {
         if (result) {
+          let temp = 0;
+          result.data.data.forEach((item) => {
+            temp += parseFloat(item.Amount_Paid);
+          });
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: temp,
           }));
           setcashCollected(result.data.data);
         }
@@ -120,9 +124,13 @@ const Auth = ({ Component }) => {
         "promiseTopay"
       ).then((result) => {
         if (result) {
+          let temp = 0;
+          result.data.data.forEach((item) => {
+            temp += parseFloat(item.Promise_to_Pay_Amount);
+          });
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: temp,
           }));
           setpromiseTopay(result.data.data);
         }
@@ -134,8 +142,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setmeritsOfCases(result.data.data);
         }
@@ -147,8 +155,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setlegalActions(result.data.data);
         }
@@ -160,8 +168,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setabscondedCases(result.data.data);
         }
@@ -173,8 +181,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setliveInvoices(result.data.data);
         }
@@ -186,8 +194,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setdisputedInvoices(result.data.data);
         }
@@ -199,8 +207,8 @@ const Auth = ({ Component }) => {
       ).then((result) => {
         if (result) {
           setLength((prevData) => ({
-            ...prevData, // Keep previous state
-            [result.title]: result.data.data.length, // Update only the matched key
+            ...prevData,
+            [result.title]: result.data.data.length,
           }));
           setfieldVisits(result.data.data);
         }

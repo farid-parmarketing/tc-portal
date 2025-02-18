@@ -31,7 +31,7 @@ const Home = () => {
                   <FaBriefcase />
                 </div>
                 <div className="description">
-                  <p>{user.Company}</p>
+                  <p className="fw-bold">{user.Company}</p>
                 </div>
               </Link>
 
@@ -50,7 +50,7 @@ const Home = () => {
                   <MdCreditCardOff />
                 </div>
                 <div className="description">
-                  <p>{length.noOfDebtors}</p>
+                  <p className="fw-bold">{length.noOfDebtors}</p>
                 </div>
               </Link>
 
@@ -60,7 +60,7 @@ const Home = () => {
                   <FaFileInvoice />
                 </div>
                 <div className="description">
-                  <p>{length.noOfInvoices}</p>
+                  <p className="fw-bold">{length.noOfInvoices}</p>
                 </div>
               </Link>
 
@@ -70,7 +70,9 @@ const Home = () => {
                   <FaMoneyBillAlt />
                 </div>
                 <div className="description">
-                  <p>{length.cashCollected}</p>
+                  <p className="fw-bold">
+                    Rs {length.cashCollected.toLocaleString("en-IN")}
+                  </p>
                 </div>
               </Link>
 
@@ -80,7 +82,9 @@ const Home = () => {
                   <FaMoneyBill />
                 </div>
                 <div className="description">
-                  <p>{length.promiseTopay}</p>
+                  <p className="fw-bold">
+                    Rs {length.promiseTopay.toLocaleString("en-IN")}
+                  </p>
                 </div>
               </Link>
 
@@ -90,7 +94,7 @@ const Home = () => {
                   <FaSuitcase />
                 </div>
                 <div className="description">
-                  <p>{length.meritsOfCases}</p>
+                  <p className="fw-bold">{length.meritsOfCases}</p>
                 </div>
               </Link>
 
@@ -100,7 +104,7 @@ const Home = () => {
                   <GoLaw />
                 </div>
                 <div className="description">
-                  <p>{length.legalActions}</p>
+                  <p className="fw-bold">{length.legalActions}</p>
                 </div>
               </Link>
 
@@ -110,7 +114,7 @@ const Home = () => {
                   <RiCalendarCloseLine />
                 </div>
                 <div className="description">
-                  <p>{length.abscondedCases}</p>
+                  <p className="fw-bold">{length.abscondedCases}</p>
                 </div>
               </Link>
 
@@ -120,7 +124,7 @@ const Home = () => {
                   <FaFileInvoiceDollar />
                 </div>
                 <div className="description">
-                  <p>{length.liveInvoices}</p>
+                  <p className="fw-bold">{length.liveInvoices}</p>
                 </div>
               </Link>
 
@@ -130,7 +134,7 @@ const Home = () => {
                   <GiPublicSpeaker />
                 </div>
                 <div className="description">
-                  <p>{length.disputedInvoices}</p>
+                  <p className="fw-bold">{length.disputedInvoices}</p>
                 </div>
               </Link>
 
@@ -140,7 +144,7 @@ const Home = () => {
                   <FaLocationArrow />
                 </div>
                 <div className="description">
-                  <p>{length.fieldVisits}</p>
+                  <p className="fw-bold">{length.fieldVisits}</p>
                 </div>
               </Link>
             </div>
