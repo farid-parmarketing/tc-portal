@@ -77,6 +77,8 @@ const ExistingDebtor = () => {
       All directors or partners
     </Tooltip>
   );
+  //
+  const [debtorDetails, setDebtorDetails] = useState(null);
   return (
     <>
       <div className="container">
@@ -140,9 +142,12 @@ const ExistingDebtor = () => {
                                 placement="top"
                                 overlay={tooltip1}
                               >
-                                <button className="button">
+                                <Link
+                                  className="button d-block"
+                                  to={`/viewdebtor/${item.id}`}
+                                >
                                   <FaEye />
-                                </button>
+                                </Link>
                               </OverlayTrigger>
                               <OverlayTrigger
                                 placement="top"

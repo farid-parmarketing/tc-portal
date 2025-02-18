@@ -26,6 +26,7 @@ import FieldVisits from "./pages/FieldVisits";
 import Profile from "./pages/Profile";
 import Auth from "./utility/Auth";
 import NewInvoice from "./pages/NewInvoice";
+import ViewDebtor from "./pages/ViewDebtor";
 
 const App = () => {
   return (
@@ -45,6 +46,10 @@ const App = () => {
           <Route
             path="/existingdebtor"
             element={<Auth Component={ExistingDebtor} />}
+          />
+          <Route
+            path="/viewdebtor/:id"
+            element={<Auth Component={ViewDebtor} />}
           />
           <Route path="/newdebtor" element={<Auth Component={NewDebtor} />} />
           <Route path="/newinvoice" element={<Auth Component={NewInvoice} />} />

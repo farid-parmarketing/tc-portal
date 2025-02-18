@@ -567,11 +567,6 @@ footer p {
   justify-content: flex-start;
   gap: 8px;
 }
-.nav-icons {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 .nav-icons svg:hover {
   color: var(--secondary);
 }

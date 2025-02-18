@@ -13,7 +13,6 @@ import { AppContext } from "../context/AppContext";
 
 const BasicDetails = () => {
   const { user } = useContext(AppContext);
-  console.log(user);
   return (
     <>
       <div className="container">

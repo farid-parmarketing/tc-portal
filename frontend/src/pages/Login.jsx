@@ -40,13 +40,37 @@ const Login = () => {
         }
       );
       if (res.status === 200) {
-        setisError(false);
-        setMessage("Login successful");
-        localStorage.setItem(
-          "tc-portal-id",
-          JSON.stringify(res.data.data[0].id)
+        //
+        const notesData = [
+          {
+            Lead_Name: res.data.data[0].id,
+            Login_Status: "PORTAL_LOGIN",
+          },
+        ];
+        const notesRes = await axios.post(
+          `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Login_Portal`,
+          notesData,
+          {
+            headers: {
+              Authorization: `Zoho-oauthtoken ${token}`,
+            },
+          }
         );
-        navigate("/", { replace: true });
+        if (notesRes.status === 201) {
+          setisError(false);
+          setMessage("Login successful");
+          localStorage.setItem(
+            "tc-portal-id",
+            JSON.stringify(res.data.data[0].id)
+          );
+          navigate("/", { replace: true });
+        } else {
+          setisError(true);
+          setMessage("Login failed");
+        }
+      } else {
+        setisError(true);
+        setMessage("Login failed");
       }
     }
   };

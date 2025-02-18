@@ -1,17 +1,18 @@
 import React from "react";
-import { FaHome } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaArrowAltCircleLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ title }) => {
+  const navigate = useNavigate();
+
   return (
-    <>
-      <div className="d-flex align-items-center justify-content-between mb-4">
-        <h2>{title}</h2>
-        <Link to="/" className="button">
-          <FaHome />
-        </Link>
-      </div>
-    </>
+    <div className="d-flex align-items-center justify-content-between mb-4 p-2 ">
+      <h2>{title}</h2>
+      <button onClick={() => navigate(-1)} className="button icon-button">
+        <FaArrowAltCircleLeft />
+        Back
+      </button>
+    </div>
   );
 };
 
