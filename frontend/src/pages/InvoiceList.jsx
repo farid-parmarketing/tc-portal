@@ -109,7 +109,7 @@ const InvoiceList = () => {
                           <OverlayTrigger placement="top" overlay={tooltip1}>
                             <Link
                               className="button view-button"
-                              to={`/viewinvoicelist/${item.id}`}
+                              to={`/viewinvoice/${item.id}`}
                             >
                               <FaEye />
                             </Link>

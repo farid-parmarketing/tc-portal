@@ -6,7 +6,7 @@ import Header from "../components/Header";
 import Loader from "../components/Loader";
 import { FaUser } from "react-icons/fa";
 
-const ViewInvoiceList = () => {
+const ViewInvoice = () => {
   const { url, generateToken } = useContext(AppContext);
   const { id } = useParams();
   const [invoice, setInvoice] = useState(null);
@@ -349,4 +349,4 @@ const ViewInvoiceList = () => {
   );
 };
 
-export default ViewInvoiceList;
+export default ViewInvoice;
