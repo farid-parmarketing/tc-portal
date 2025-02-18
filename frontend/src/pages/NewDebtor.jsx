@@ -19,9 +19,9 @@ import { FaBuilding } from "react-icons/fa";
 import Cookies from "js-cookie";
 
 const NewDebtor = () => {
-  const { url, user, getUser } = useContext(AppContext);
+  const { url, user, generateToken } = useContext(AppContext);
   const [inputs, setInputs] = useState({
-    clientBusinessName: "",
+    clientBusinessName: user.Company,
     companyName: "",
     mobile: "",
     whatsapp: "",
@@ -39,71 +39,96 @@ const NewDebtor = () => {
   });
   const handleInputs = (e) => {
     const { name, value } = e.target;
+    //
+    if (name === "mobile" && !/^\d*$/.test(value)) return;
+    //
     setInputs({
       ...inputs,
       [name]: value,
     });
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
+  const [errors, setErrors] = useState({});
   //
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState("");
   const addNewDebtor = async (e) => {
     e.preventDefault();
-    //
-    if (user === null) {
-      getUser();
-    } else {
-      const {
-        clientBusinessName,
-        companyName,
-        mobile,
-        email,
-        whatsapp,
-        telephone,
-        position,
-        city,
-        stillTrading,
-        balanceOutstanding,
-        businessAddress,
-        homeAddress,
-        tradeLicenseNumber,
-        typeOfCompany,
-        notes,
-      } = inputs;
-      const customerID = user.id;
-      const token = Cookies.get("tcm_client_token");
-      //
-      const res = await axios.post(`${url}/newdebtor`, {
-        customerID,
-        token,
-        clientBusinessName,
-        companyName,
-        mobile,
-        email,
-        whatsapp,
-        telephone,
-        position,
-        city,
-        stillTrading,
-        balanceOutstanding,
-        businessAddress,
-        homeAddress,
-        tradeLicenseNumber,
-        typeOfCompany,
-        notes,
-      });
-      //
-      if (res.data.success === true) {
-        setIsError(false);
-        setMessage("Record saved");
-      } else if (res.data.success === false) {
-        if (res.data.code === 400) {
-          setIsError(true);
-          setMessage("Token limit reached");
-        } else if (res.data.code === 401) {
-          setIsError(true);
-          setMessage("Token expired. Please try again after some time.");
+    let newErrors = {};
+
+    const requiredFields = [
+      "companyName",
+      "mobile",
+      "balanceOutstanding",
+      "position",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!inputs[field].trim()) {
+        newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+      }
+    });
+    if (inputs.mobile && !/^\d{10}$/.test(inputs.mobile)) {
+      newErrors.mobile = "Mobile number must be 10 digits long";
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const token = await generateToken();
+        const data = [
+          {
+            Lead: inputs.customerID,
+            Client_Company_Name: inputs.clientBusinessName,
+            Name: inputs.companyName,
+            Debtor_Phone_Number: inputs.mobile,
+            Email: inputs.email,
+            WhatsApp_Number: inputs.whatsapp,
+            Debtor_Land_Line: inputs.telephone,
+            Position_In_business: inputs.position,
+            Debtor_City: inputs.city,
+            Business_Still_trading: inputs.stillTrading,
+            Balance_O_D: inputs.balanceOutstanding,
+            Address_Of_Business: inputs.businessAddress,
+            Home_Address_Of_Debtor: inputs.homeAddress,
+            GST_number_of_Debtors_business: inputs.tradeLicenseNumber,
+            Type_Of_Company: inputs.typeOfCompany,
+            Debtors_Notes: inputs.notes,
+          },
+        ];
+        const res = await axios.post(
+          `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Debtors_Details`,
+          data,
+          {
+            headers: {
+              Authorization: `Zoho-oauthtoken ${token}`,
+            },
+          }
+        );
+        if (res.status === 201) {
+          setMessage("Debtor added successfully");
+          setIsError(false);
+          setInputs({
+            clientBusinessName: user.Company,
+            companyName: "",
+            mobile: "",
+            whatsapp: "",
+            telephone: "",
+            email: "",
+            balanceOutstanding: "",
+            position: "",
+            city: "",
+            trading: "",
+            businessAddress: "",
+            homeAddress: "",
+            notes: "",
+            tradeLisenceNumber: "",
+            typeOfCompany: "",
+          });
+          setErrors({});
         }
+      } catch (error) {
+        console.log(error);
       }
     }
   };
@@ -132,12 +157,16 @@ const NewDebtor = () => {
                 name="clientBusinessName"
                 value={inputs.clientBusinessName}
                 onChange={handleInputs}
+                autoComplete="off"
+                disabled
               />
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaIdCard />
-                <label>Debtor's company Name</label>
+                <label>
+                  Debtor's company Name <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="text"
@@ -145,12 +174,16 @@ const NewDebtor = () => {
                 name="companyName"
                 value={inputs.companyName}
                 onChange={handleInputs}
+                autoComplete="off"
               />
+              <small className="text-danger">{errors.companyName}</small>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaMobileAlt />
-                <label>Debtor's mobile number</label>
+                <label>
+                  Debtor's mobile number <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="number"
@@ -158,7 +191,9 @@ const NewDebtor = () => {
                 name="mobile"
                 value={inputs.mobile}
                 onChange={handleInputs}
+                autoComplete="off"
               />
+              <small className="text-danger">{errors.mobile}</small>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -171,6 +206,7 @@ const NewDebtor = () => {
                 name="whatsapp"
                 value={inputs.whatsapp}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -184,6 +220,7 @@ const NewDebtor = () => {
                 name="telephone"
                 value={inputs.telephone}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -197,12 +234,15 @@ const NewDebtor = () => {
                 name="email"
                 value={inputs.email}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaBalanceScaleLeft />
-                <label>balance outstanding</label>
+                <label>
+                  balance outstanding <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="number"
@@ -210,18 +250,23 @@ const NewDebtor = () => {
                 name="balanceOutstanding"
                 value={inputs.balanceOutstanding}
                 onChange={handleInputs}
+                autoComplete="off"
               />
+              <small className="text-danger">{errors.balanceOutstanding}</small>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaUserTie />
-                <label>position in business</label>
+                <label>
+                  position in business <span className="text-danger">*</span>
+                </label>
               </div>
               <select
                 className="input"
                 name="position"
                 value={inputs.position}
                 onChange={handleInputs}
+                autoComplete="off"
               >
                 <option value="">Please select</option>
                 {position.map((item, index) => {
@@ -232,6 +277,7 @@ const NewDebtor = () => {
                   );
                 })}
               </select>
+              <small className="text-danger">{errors.position}</small>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -244,6 +290,7 @@ const NewDebtor = () => {
                 name="city"
                 value={inputs.city}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -256,6 +303,7 @@ const NewDebtor = () => {
                 name="trading"
                 value={inputs.trading}
                 onChange={handleInputs}
+                autoComplete="off"
               >
                 <option value="">Please select</option>
                 <option value="yes">Yes</option>
@@ -272,6 +320,7 @@ const NewDebtor = () => {
                 name="businessAddress"
                 value={inputs.businessAddress}
                 onChange={handleInputs}
+                autoComplete="off"
               ></textarea>
             </div>
             <div>
@@ -284,6 +333,7 @@ const NewDebtor = () => {
                 name="homeAddress"
                 value={inputs.homeAddress}
                 onChange={handleInputs}
+                autoComplete="off"
               ></textarea>
             </div>
             <div>
@@ -296,6 +346,7 @@ const NewDebtor = () => {
                 name="notes"
                 value={inputs.notes}
                 onChange={handleInputs}
+                autoComplete="off"
               ></textarea>
             </div>
             <div>
@@ -309,6 +360,7 @@ const NewDebtor = () => {
                 name="tradeLisenceNumber"
                 value={inputs.tradeLisenceNumber}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -322,14 +374,15 @@ const NewDebtor = () => {
                 name="typeOfCompany"
                 value={inputs.typeOfCompany}
                 onChange={handleInputs}
+                autoComplete="off"
               />
             </div>
           </div>
-          <div className="text-end">
+          <div className="text-end mt-4">
             <p className={isError ? "text-danger" : "text-success"}>
               {message}
             </p>
-            <div className="d-flex align-items-center justify-content-end gap-2 mt-4">
+            <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
               <button className="secondary-button">cancel</button>
               <button className="button">Save</button>
             </div>

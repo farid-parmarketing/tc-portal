@@ -16,7 +16,7 @@
   --secondary: #000;
   --transition: all 0.2s ease-in-out;
   --radius: 5px;
-  --shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  --shadow: #00000029 0px 5px 10px;
 }
 html {
   scroll-behavior: smooth;
@@ -181,9 +181,6 @@ textarea.input {
   position: relative;
   overflow: hidden;
   background-image: var(--bs-gradient) !important;
-}
-.box-shadow {
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 .primary-text {
   color: var(--primary);
