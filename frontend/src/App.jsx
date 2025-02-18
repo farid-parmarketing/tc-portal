@@ -27,6 +27,7 @@ import Profile from "./pages/Profile";
 import Auth from "./utility/Auth";
 import NewInvoice from "./pages/NewInvoice";
 import ViewDebtor from "./pages/ViewDebtor";
+import ViewInvoiceList from "./pages/ViewInvoiceList";
 
 const App = () => {
   return (
@@ -56,6 +57,10 @@ const App = () => {
           <Route
             path="/invoicelist"
             element={<Auth Component={InvoiceList} />}
+          />
+          <Route
+            path="/viewinvoicelist/:id"
+            element={<Auth Component={ViewInvoiceList} />}
           />
           <Route
             path="/cashcollected"

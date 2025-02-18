@@ -647,3 +647,7 @@ footer svg {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.view-button {
+  max-width: 56px;
+  display: block;
+}

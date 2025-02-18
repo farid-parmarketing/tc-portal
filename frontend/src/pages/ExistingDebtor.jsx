@@ -47,17 +47,6 @@ const ExistingDebtor = () => {
 
     setData(filtered);
   };
-
-  const clearFilter = () => {
-    setFilters({
-      searchInput: "",
-      status: "",
-      outstanding: {
-        start: "",
-        end: "",
-      },
-    });
-  };
   useEffect(() => {
     searchData();
   }, [filters]);
@@ -78,7 +67,6 @@ const ExistingDebtor = () => {
     </Tooltip>
   );
   //
-  const [debtorDetails, setDebtorDetails] = useState(null);
   return (
     <>
       <div className="container">
@@ -143,7 +131,7 @@ const ExistingDebtor = () => {
                                 overlay={tooltip1}
                               >
                                 <Link
-                                  className="button d-block"
+                                  className="button view-button"
                                   to={`/viewdebtor/${item.id}`}
                                 >
                                   <FaEye />

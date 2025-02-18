@@ -3,6 +3,7 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaEye, FaPlus, FaMinus } from "react-icons/fa";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContext";
+import { Link } from "react-router-dom";
 
 const InvoiceList = () => {
   const { noOfInvoices, ITEMS_PER_PAGE } = useContext(AppContext);
@@ -35,10 +36,6 @@ const InvoiceList = () => {
   useEffect(() => {
     searchData();
   }, [searchInput]);
-  const clearFilter = () => {
-    setSearchInput("");
-    setData(noOfInvoices);
-  };
   //
   const tooltip1 = (
     <Tooltip id="tooltip-id1" className="text-capitalize">
@@ -110,9 +107,12 @@ const InvoiceList = () => {
                         </td>
                         <td>
                           <OverlayTrigger placement="top" overlay={tooltip1}>
-                            <button className="button">
+                            <Link
+                              className="button view-button"
+                              to={`/viewinvoicelist/${item.id}`}
+                            >
                               <FaEye />
-                            </button>
+                            </Link>
                           </OverlayTrigger>
                         </td>
                       </tr>
