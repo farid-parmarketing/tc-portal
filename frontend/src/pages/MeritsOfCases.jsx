@@ -79,7 +79,7 @@ const MeritsOfCases = () => {
                           <td>{item.Debtor_Phone_Number}</td>
                           <td>{item.Email}</td>
                           <td>{item.Debtor_Status}</td>
-                          <td className="sentence">{item.Merits_Case_List}</td>
+                          <td>{item.Merits_Case_List}</td>
                           <td>{item.Case_Status}</td>
                         </tr>
                       );

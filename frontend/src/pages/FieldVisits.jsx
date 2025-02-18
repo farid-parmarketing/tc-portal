@@ -84,7 +84,7 @@ const FieldVisits = () => {
                           <td>{item.No_of_Visit}</td>
                           <td>{item.Action}</td>
                           <td>{item.Promise_To_Pay}</td>
-                          <td className="sentence">{item.FOS_Feedback}</td>
+                          <td>{item.FOS_Feedback}</td>
                         </tr>
                       );
                     })}
