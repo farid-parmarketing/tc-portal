@@ -50,7 +50,10 @@ const generateToken = async () => {
     console.error("Error generating token:", error);
   }
 };
-cron.schedule("*/10 * * * *", generateToken);
+cron.schedule("*/10 * * * *", () => {
+  console.log("Running generateToken...");
+  generateToken();
+});
 
 // generate token manually
 router.get("/token/generate", async (req, res) => {

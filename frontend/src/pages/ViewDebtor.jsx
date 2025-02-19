@@ -146,7 +146,6 @@ const ViewDebtor = () => {
                   <FaNoteSticky />
                   <p>Notes</p>
                 </div>
-                <h2 className="sentence">{debtor.Debtors_Notes}</h2>
                 <button
                   className="button"
                   data-bs-toggle="modal"

@@ -71,12 +71,7 @@ const NotesModal = ({ id }) => {
                         className={index === notes.length - 1 ? "" : "mb-3"}
                         key={index}
                       >
-                        <p className="fw-bold">
-                          {item.Note_Title === ""
-                            ? "Untitled note"
-                            : item.Note_Title}
-                        </p>
-                        <p>{item.Note_Content}</p>
+                        <p className="fw-bold">{item.Note_Content}</p>
                         <p>
                           Timestamps: {item.formattedDate} at{" "}
                           {item.formattedTime}

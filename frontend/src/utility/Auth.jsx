@@ -224,7 +224,7 @@ const Auth = ({ Component }) => {
       ) : (
         <>
           <Navbar />
-          <Component />
+          <Component fetchLength={fetchLength} />
         </>
       )}
     </>

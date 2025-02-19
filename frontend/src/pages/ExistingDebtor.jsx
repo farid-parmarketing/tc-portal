@@ -86,9 +86,6 @@ const ExistingDebtor = () => {
               <Link to="/newdebtor" className="button bg-gradient">
                 Add a new debtor
               </Link>
-              <Link to="/newinvoice" className="button">
-                Upload invoice
-              </Link>
             </div>
           </div>
           {data.length === 0 ? (
@@ -105,6 +102,7 @@ const ExistingDebtor = () => {
                       <th style={{ minWidth: "230px" }}>Status</th>
                       <th style={{ minWidth: "200px" }}>Outstanding Amount</th>
                       <th style={{ minWidth: "200px" }}>Amount recovered</th>
+                      <th style={{ minWidth: "160px" }}>Add Invoice</th>
                       <th style={{ minWidth: "250px" }}>Action</th>
                     </tr>
                   </thead>
@@ -123,6 +121,9 @@ const ExistingDebtor = () => {
                           <td>
                             {item.Payment_Received !== "-" && "Rs"}{" "}
                             {item.Payment_Received}
+                          </td>
+                          <td>
+                            <button className="button">Add invoice</button>
                           </td>
                           <td>
                             <div className="d-flex align-items-center justify-content-start gap-2">

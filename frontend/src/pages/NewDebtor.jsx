@@ -16,10 +16,13 @@ import { IoLocationSharp } from "react-icons/io5";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { FaHashtag } from "react-icons/fa";
 import { FaBuilding } from "react-icons/fa";
-import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
-const NewDebtor = () => {
-  const { url, user, generateToken } = useContext(AppContext);
+const NewDebtor = ({ fetchLength }) => {
+  const { url, user, generateToken, setLength, setnoOfDebtors } =
+    useContext(AppContext);
+  const navigate = useNavigate();
+  //
   const [inputs, setInputs] = useState({
     clientBusinessName: user.Company,
     companyName: "",
@@ -29,6 +32,7 @@ const NewDebtor = () => {
     email: "",
     balanceOutstanding: "",
     position: "",
+    state: "",
     city: "",
     trading: "",
     businessAddress: "",
@@ -36,6 +40,7 @@ const NewDebtor = () => {
     notes: "",
     tradeLisenceNumber: "",
     typeOfCompany: "",
+    gst: "",
   });
   const handleInputs = (e) => {
     const { name, value } = e.target;
@@ -61,6 +66,10 @@ const NewDebtor = () => {
       "mobile",
       "balanceOutstanding",
       "position",
+      "typeOfCompany",
+      "state",
+      "city",
+      "gst",
     ];
 
     requiredFields.forEach((field) => {
@@ -78,21 +87,25 @@ const NewDebtor = () => {
         const token = await generateToken();
         const data = [
           {
-            Lead: inputs.customerID,
+            Lead: user.id,
             Client_Company_Name: inputs.clientBusinessName,
             Name: inputs.companyName,
             Debtor_Phone_Number: inputs.mobile,
+            Type_Of_Company: inputs.typeOfCompany,
+            Recovery_Stages: "Stage 0 - Enrolled",
+            Debtor_City: inputs.city,
+            Debtor_State: inputs.state,
+            GST_number_of_Debtors_business: inputs.gst,
+            Nature_of_Goods_Service: "FRAMES AND MOUNTINGS FOR SPECTACLES",
+            Balance_O_D: inputs.balanceOutstanding,
+            //
             Email: inputs.email,
             WhatsApp_Number: inputs.whatsapp,
             Debtor_Land_Line: inputs.telephone,
             Position_In_business: inputs.position,
-            Debtor_City: inputs.city,
             Business_Still_trading: inputs.stillTrading,
-            Balance_O_D: inputs.balanceOutstanding,
             Address_Of_Business: inputs.businessAddress,
             Home_Address_Of_Debtor: inputs.homeAddress,
-            GST_number_of_Debtors_business: inputs.tradeLicenseNumber,
-            Type_Of_Company: inputs.typeOfCompany,
             Debtors_Notes: inputs.notes,
           },
         ];
@@ -117,6 +130,7 @@ const NewDebtor = () => {
             email: "",
             balanceOutstanding: "",
             position: "",
+            state: "",
             city: "",
             trading: "",
             businessAddress: "",
@@ -124,8 +138,22 @@ const NewDebtor = () => {
             notes: "",
             tradeLisenceNumber: "",
             typeOfCompany: "",
+            gst: "",
           });
           setErrors({});
+          fetchLength(
+            `https://www.zohoapis.in/crm/v2/Leads/${user.id}/Debtors_Details`,
+            "noOfDebtors"
+          ).then((result) => {
+            if (result) {
+              setLength((prevData) => ({
+                ...prevData,
+                [result.title]: result.data.data.length,
+              }));
+              setnoOfDebtors(result.data.data);
+            }
+          });
+          navigate("/existingdebtor", { replace: true });
         }
       } catch (error) {
         console.log(error);
@@ -282,6 +310,21 @@ const NewDebtor = () => {
             <div>
               <div className="name-icon-flex">
                 <FaUserTie />
+                <label>State</label>
+              </div>
+              <input
+                type="text"
+                className="input"
+                name="state"
+                value={inputs.state}
+                onChange={handleInputs}
+                autoComplete="off"
+              />
+              <small className="text-danger">{errors.state}</small>
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaUserTie />
                 <label>City</label>
               </div>
               <input
@@ -292,6 +335,7 @@ const NewDebtor = () => {
                 onChange={handleInputs}
                 autoComplete="off"
               />
+              <small className="text-danger">{errors.city}</small>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -339,15 +383,17 @@ const NewDebtor = () => {
             <div>
               <div className="name-icon-flex">
                 <IoNewspaperOutline />
-                <label>notes</label>
+                <label>GST number of debtors business</label>
               </div>
-              <textarea
+              <input
+                type="text"
                 className="input"
-                name="notes"
-                value={inputs.notes}
+                name="gst"
+                value={inputs.gst}
                 onChange={handleInputs}
                 autoComplete="off"
-              ></textarea>
+              />
+              <small className="text-danger">{errors.gst}</small>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -376,6 +422,7 @@ const NewDebtor = () => {
                 onChange={handleInputs}
                 autoComplete="off"
               />
+              <small className="text-danger">{errors.typeOfCompany}</small>
             </div>
           </div>
           <div className="text-end mt-4">
@@ -383,7 +430,9 @@ const NewDebtor = () => {
               {message}
             </p>
             <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
-              <button className="secondary-button">cancel</button>
+              <button className="secondary-button" onClick={() => navigate(-1)}>
+                cancel
+              </button>
               <button className="button">Save</button>
             </div>
           </div>
