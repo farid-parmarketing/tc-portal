@@ -53,7 +53,10 @@ const App = () => {
             element={<Auth Component={ViewDebtor} />}
           />
           <Route path="/newdebtor" element={<Auth Component={NewDebtor} />} />
-          <Route path="/newinvoice" element={<Auth Component={NewInvoice} />} />
+          <Route
+            path="/newinvoice/:id"
+            element={<Auth Component={NewInvoice} />}
+          />
           <Route
             path="/invoicelist"
             element={<Auth Component={InvoiceList} />}

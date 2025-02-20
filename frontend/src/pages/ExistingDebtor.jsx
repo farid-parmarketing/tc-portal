@@ -123,7 +123,12 @@ const ExistingDebtor = () => {
                             {item.Payment_Received}
                           </td>
                           <td>
-                            <button className="button">Add invoice</button>
+                            <Link
+                              to={`/newinvoice/${item.id}`}
+                              className="button"
+                            >
+                              Add Invoice
+                            </Link>
                           </td>
                           <td>
                             <div className="d-flex align-items-center justify-content-start gap-2">

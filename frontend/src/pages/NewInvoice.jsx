@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import {
   FaHashtag,
@@ -6,16 +6,150 @@ import {
   FaCalendarAlt,
   FaQuestionCircle,
   FaPercentage,
-  FaBuilding,
   FaFile,
-  FaStopwatch,
 } from "react-icons/fa";
-import { SiStatuspage } from "react-icons/si";
-import { MdFeedback, MdDisplaySettings } from "react-icons/md";
-import { PiCoinVertical } from "react-icons/pi";
-import { GoLaw } from "react-icons/go";
+import { useNavigate, useParams } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
 
 const NewInvoice = () => {
+  const { url, user, generateToken } = useContext(AppContext);
+  const { id } = useParams();
+
+  const [inputs, setInputs] = useState({
+    invoiceNumber: "",
+    invoiceAmount: "",
+    invoiceDate: "",
+    invoiceDueDate: "",
+    interestPercentage: "",
+    daysDelayed: "",
+    today: "",
+    interestAmount: "",
+    interestRate: "",
+    outstandingAmount: "",
+    paymentTerms: "",
+    serviceOrGoodsSupplied: "",
+    uploadInvoiceCopy: null,
+    deliveryChalan: "",
+    deliveryChalanNumber: "",
+    uploadDeliveryChalan: null,
+    deliveryDate: "",
+    purchaseOrder: "",
+    purchaseOrderNumber: "",
+    uploadPurchaseOrder: null,
+    purchaseOrderDate: "",
+    disputedInvoice: "",
+    holdingChecques: "",
+    bouncedChecques: "",
+    legalAction: "",
+    checqueBounceAmount: "",
+  });
+  const handleChange = (e) => {
+    const { name, value, type, files } = e.target;
+    setInputs((prev) => ({
+      ...prev,
+      [name]: type === "file" ? files[0] : value,
+    }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+  const navigate = useNavigate();
+  const [isError, setIsError] = useState(false);
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  //
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    //
+    let newErrors = {};
+    const requiredFields = [
+      "invoiceNumber",
+      "invoiceAmount",
+      "invoiceDate",
+      "invoiceDueDate",
+      "interestPercentage",
+    ];
+    requiredFields.forEach((field) => {
+      if (!inputs[field].trim()) {
+        newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+      }
+    });
+    setErrors(newErrors);
+    //
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const token = await generateToken();
+        const data = [
+          {
+            Name: inputs.invoiceNumber,
+            Lead_Name: user.id,
+            Debtor_Name1: id,
+            Invoice_Amount: inputs.invoiceAmount,
+            Invoice_Date: inputs.invoiceDate,
+            Due_Date: inputs.invoiceDueDate,
+            Pending_Invoice_Amount: inputs.invoiceAmount,
+            Fixed_Interest_Percentage: inputs.interestPercentage,
+            Calculation_Date: inputs.today.split("/").reverse().join("-"),
+            //
+            Payment_Terms: inputs.paymentTerms,
+            Services_or_Goods_Supplied: inputs.serviceOrGoodsSupplied,
+            Do_you_have_a_Delivery_Challan: inputs.deliveryChalan,
+            Delivery_Challan_No: inputs.deliveryChalanNumber,
+            Delivery_Date: inputs.deliveryDate,
+          },
+        ];
+        const res = await axios.post(
+          `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Debtor_Invoices`,
+          data,
+          {
+            headers: {
+              Authorization: `Zoho-oauthtoken ${token}`,
+            },
+          }
+        );
+        console.log(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+  //
+  useEffect(() => {
+    const dueDate = new Date(inputs.invoiceDueDate);
+    const today = new Date();
+    const diffInTime = dueDate.getTime() - today.getTime();
+    const diffInDays = Math.abs(Math.ceil(diffInTime / (1000 * 3600 * 24)));
+    //
+    const interestRate = Math.round(
+      (diffInDays * inputs.interestPercentage) / 365
+    );
+    const interestAmount = (inputs.invoiceAmount * interestRate) / 100;
+    const outstanding =
+      parseFloat(interestAmount) + parseFloat(inputs.invoiceAmount);
+
+    if (
+      inputs.invoiceAmount === "" ||
+      inputs.invoiceDueDate === "" ||
+      inputs.interestPercentage === ""
+    ) {
+      setInputs({
+        ...inputs,
+        daysDelayed: "",
+        interestAmount: "",
+        outstandingAmount: "",
+        interestRate: "",
+        today: "",
+      });
+    } else {
+      setInputs({
+        ...inputs,
+        daysDelayed: diffInDays,
+        interestAmount,
+        outstandingAmount: outstanding,
+        interestRate,
+        today: today.toLocaleDateString(),
+      });
+    }
+  }, [inputs.interestPercentage, inputs.invoiceDueDate, inputs.invoiceAmount]);
   return (
     <>
       <div className="container">
@@ -26,156 +160,82 @@ const NewInvoice = () => {
             <div>
               <div className="name-icon-flex">
                 <FaHashtag />
-                <label>Invoice number</label>
+                <label>
+                  Invoice number <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="invoiceNumber"
+                value={inputs.invoiceNumber}
+                onChange={handleChange}
               />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaHashtag />
-                <label>Invoice Reference number</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <small className="text-danger">{errors.invoiceNumber}</small>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaRupeeSign />
-                <label>Invoice amount</label>
+                <label>
+                  Invoice amount <span className="text-danger">*</span>
+                </label>
               </div>
               <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                type="number"
+                className="input"
+                name="invoiceAmount"
+                value={inputs.invoiceAmount}
+                onChange={handleChange}
               />
+              <small className="text-danger">{errors.invoiceAmount}</small>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaCalendarAlt />
-                <label>Invoice date</label>
+                <label>
+                  Invoice date <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="date"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="invoiceDate"
+                value={inputs.invoiceDate}
+                onChange={handleChange}
               />
+              <small className="text-danger">{errors.invoiceDate}</small>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaCalendarAlt />
-                <label>Invoice due date</label>
+                <label>
+                  Invoice due date <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="date"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="invoiceDueDate"
+                value={inputs.invoiceDueDate}
+                onChange={handleChange}
               />
+              <small className="text-danger">{errors.invoiceDueDate}</small>
             </div>
             <div>
               <div className="name-icon-flex">
-                <FaRupeeSign />
-                <label>Terms of payment</label>
+                <FaPercentage />
+                <label>
+                  interest percentage <span className="text-danger">*</span>
+                </label>
               </div>
               <input
                 type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="interestPercentage"
+                value={inputs.interestPercentage}
+                onChange={handleChange}
               />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaQuestionCircle />
-                <label>services or goods supplied</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaFile />
-                <label>upload invoice copy</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaQuestionCircle />
-                <label>Do you have delivery challan?</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaHashtag />
-                <label>delhivery challan number</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaQuestionCircle />
-                <label>do you have purchase order (PO)?</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaHashtag />
-                <label>purchase order number</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaFile />
-                <label>upload purchase order</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaCalendarAlt />
-                <label>purchase order date</label>
-              </div>
-              <input
-                type="date"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <small className="text-danger">{errors.interestPercentage}</small>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -184,19 +244,11 @@ const NewInvoice = () => {
               </div>
               <input
                 type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaPercentage />
-                <label>interest percentage</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="daysDelayed"
+                value={inputs.daysDelayed}
+                onChange={handleChange}
+                disabled
               />
             </div>
             <div>
@@ -206,19 +258,188 @@ const NewInvoice = () => {
               </div>
               <input
                 type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="interestAmount"
+                value={inputs.interestAmount}
+                onChange={handleChange}
+                disabled
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaPercentage />
+                <label>interest rate</label>
+              </div>
+              <input
+                type="text"
+                className="input"
+                name="interestRate"
+                value={inputs.interestRate}
+                onChange={handleChange}
+                disabled
               />
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaRupeeSign />
-                <label>outstanding amount</label>
+                <label>Outstanding amount</label>
               </div>
               <input
                 type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                className="input"
+                name="outstandingAmount"
+                value={inputs.outstandingAmount}
+                onChange={handleChange}
+                disabled
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaRupeeSign />
+                <label>Terms of payment</label>
+              </div>
+              <input
+                type="text"
+                className="input"
+                name="paymentTerms"
+                value={inputs.paymentTerms}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaQuestionCircle />
+                <label>services or goods supplied</label>
+              </div>
+              <select
+                className="input"
+                name="serviceOrGoodsSupplied"
+                value={inputs.serviceOrGoodsSupplied}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaFile />
+                <label>upload invoice copy</label>
+              </div>
+              <input
+                type="file"
+                className="input"
+                name="uploadInvoiceCopy"
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaQuestionCircle />
+                <label>Do you have delivery challan?</label>
+              </div>
+              <select
+                className="input"
+                name="deliveryChalan"
+                value={inputs.deliveryChalan}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaHashtag />
+                <label>If Yes, delivery challan number</label>
+              </div>
+              <input
+                type="text"
+                className="input"
+                name="deliveryChalanNumber"
+                value={inputs.deliveryChalanNumber}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaFile />
+                <label>Upload Delivery Challan</label>
+              </div>
+              <input
+                type="file"
+                className="input"
+                name="uploadDeliveryChalan"
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaRupeeSign />
+                <label>Date of delivery</label>
+              </div>
+              <input
+                type="date"
+                className="input"
+                name="deliveryDate"
+                value={inputs.deliveryDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaQuestionCircle />
+                <label>do you have purchase order (PO)?</label>
+              </div>
+              <select
+                className="input"
+                name="purchaseOrder"
+                value={inputs.purchaseOrder}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaHashtag />
+                <label>If Yes, purchase order number</label>
+              </div>
+              <input
+                type="text"
+                className="input"
+                name="purchaseOrderNumber"
+                value={inputs.purchaseOrderNumber}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaFile />
+                <label>upload purchase order</label>
+              </div>
+              <input
+                type="file"
+                className="input"
+                name="uploadPurchaseOrder"
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <div className="name-icon-flex">
+                <FaCalendarAlt />
+                <label>purchase order date</label>
+              </div>
+              <input
+                type="date"
+                className="input"
+                name="purchaseOrderDate"
+                value={inputs.purchaseOrderDate}
+                onChange={handleChange}
               />
             </div>
             <div>
@@ -226,33 +447,48 @@ const NewInvoice = () => {
                 <FaQuestionCircle />
                 <label>has the debtor disputed the invoice?</label>
               </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <select
+                className="input"
+                name="disputedInvoice"
+                value={inputs.disputedInvoice}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaQuestionCircle />
                 <label>are you holding any cheques from the debtor?</label>
               </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <select
+                className="input"
+                name="holdingChecques"
+                value={inputs.holdingChecques}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
             </div>
             <div>
               <div className="name-icon-flex">
                 <FaQuestionCircle />
                 <label>has the debtor bounced any cheques?</label>
               </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <select
+                className="input"
+                name="bouncedChecques"
+                value={inputs.bouncedChecques}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -261,11 +497,16 @@ const NewInvoice = () => {
                   has there been any legal action taken against the Invoice?
                 </label>
               </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+              <select
+                className="input"
+                name="legalAction"
+                value={inputs.legalAction}
+                onChange={handleChange}
+              >
+                <option value=""></option>
+                <option value="yes">Yes</option>
+                <option value="no">no</option>
+              </select>
             </div>
             <div>
               <div className="name-icon-flex">
@@ -273,197 +514,25 @@ const NewInvoice = () => {
                 <label>cheque bounce amount</label>
               </div>
               <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
+                type="number"
+                className="input"
+                name="checqueBounceAmount"
+                value={inputs.checqueBounceAmount}
+                onChange={handleChange}
               />
             </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaRupeeSign />
-                <label>amount recieved</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaCalendarAlt />
-                <label>amount recieved date</label>
-              </div>
-              <input
-                type="date"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaCalendarAlt />
-                <label>visit date</label>
-              </div>
-              <input
-                type="date"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaRupeeSign />
-                <label>promise to pay</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaRupeeSign />
-                <label>final pending amount</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaRupeeSign />
-                <label>promise to pay amount</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <MdDisplaySettings />
-                <label>disputed informed</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaStopwatch />
-                <label>frequency</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaBuilding />
-                <label>visited city</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <MdFeedback />
-                <label>FOS feedback</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <FaHashtag />
-                <label>Number of visits</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <PiCoinVertical />
-                <label>action</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <PiCoinVertical />
-                <label>for phase</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <GoLaw />
-                <label>type of case</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <SiStatuspage />
-                <label>complaint status</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <SiStatuspage />
-                <label>notice status</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
-            </div>
-            <div>
-              <div className="name-icon-flex">
-                <SiStatuspage />
-                <label>status</label>
-              </div>
-              <input
-                type="text"
-                className="input pseudo"
-                name="clientBusinessName"
-              />
+          </div>
+          <div className="text-end mt-4">
+            <p className={isError ? "text-danger" : "text-success"}>
+              {message}
+            </p>
+            <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
+              <button className="secondary-button" onClick={() => navigate(-1)}>
+                cancel
+              </button>
+              <button className="button" onClick={handleSubmit}>
+                Save
+              </button>
             </div>
           </div>
         </form>

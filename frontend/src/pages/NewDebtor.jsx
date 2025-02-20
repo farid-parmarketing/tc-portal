@@ -59,8 +59,8 @@ const NewDebtor = ({ fetchLength }) => {
   const [message, setMessage] = useState("");
   const addNewDebtor = async (e) => {
     e.preventDefault();
-    let newErrors = {};
 
+    let newErrors = {};
     const requiredFields = [
       "companyName",
       "mobile",
@@ -71,7 +71,6 @@ const NewDebtor = ({ fetchLength }) => {
       "city",
       "gst",
     ];
-
     requiredFields.forEach((field) => {
       if (!inputs[field].trim()) {
         newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
@@ -153,7 +152,9 @@ const NewDebtor = ({ fetchLength }) => {
               setnoOfDebtors(result.data.data);
             }
           });
-          navigate("/existingdebtor", { replace: true });
+          setTimeout(() => {
+            navigate("/existingdebtor", { replace: true });
+          }, 2000);
         }
       } catch (error) {
         console.log(error);
