@@ -39,10 +39,10 @@ const NewInvoice = () => {
     uploadPurchaseOrder: null,
     purchaseOrderDate: "",
     disputedInvoice: "",
-    holdingChecques: "",
-    bouncedChecques: "",
+    holdingCheques: "",
+    bouncedCheques: "",
     legalAction: "",
-    checqueBounceAmount: "",
+    chequeBounceAmount: "",
   });
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -95,6 +95,14 @@ const NewInvoice = () => {
             Do_you_have_a_Delivery_Challan: inputs.deliveryChalan,
             Delivery_Challan_No: inputs.deliveryChalanNumber,
             Delivery_Date: inputs.deliveryDate,
+            Do_you_have_a_Purchase_Order_PO: inputs.purchaseOrder,
+            Purchase_Order_No: inputs.purchaseOrderNumber,
+            Purchase_Order_Date: inputs.purchaseOrderDate,
+            Are_you_holding_any_cheque_from_debtor: inputs.holdingCheques,
+            Has_the_debtor_bounced_any_cheque: inputs.bouncedCheques,
+            legal_action_taken: inputs.legalAction,
+            Cheque_Bounce_Amount: inputs.chequeBounceAmount,
+            Invoice_Disputed: inputs.disputedInvoice,
           },
         ];
         const res = await axios.post(
@@ -106,7 +114,39 @@ const NewInvoice = () => {
             },
           }
         );
-        console.log(res.data);
+        if (res.status === 201) {
+          setIsError(false);
+          setMessage("Invoice added successfullt");
+          setInputs({
+            invoiceNumber: "",
+            invoiceAmount: "",
+            invoiceDate: "",
+            invoiceDueDate: "",
+            interestPercentage: "",
+            daysDelayed: "",
+            today: "",
+            interestAmount: "",
+            interestRate: "",
+            outstandingAmount: "",
+            paymentTerms: "",
+            serviceOrGoodsSupplied: "",
+            uploadInvoiceCopy: null,
+            deliveryChalan: "",
+            deliveryChalanNumber: "",
+            uploadDeliveryChalan: null,
+            deliveryDate: "",
+            purchaseOrder: "",
+            purchaseOrderNumber: "",
+            uploadPurchaseOrder: null,
+            purchaseOrderDate: "",
+            disputedInvoice: "",
+            holdingCheques: "",
+            bouncedCheques: "",
+            legalAction: "",
+            chequeBounceAmount: "",
+          });
+          navigate(-1);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -361,6 +401,7 @@ const NewInvoice = () => {
                 name="deliveryChalanNumber"
                 value={inputs.deliveryChalanNumber}
                 onChange={handleChange}
+                disabled={inputs.deliveryChalan === "yes" ? false : true}
               />
             </div>
             <div>
@@ -415,6 +456,7 @@ const NewInvoice = () => {
                 name="purchaseOrderNumber"
                 value={inputs.purchaseOrderNumber}
                 onChange={handleChange}
+                disabled={inputs.purchaseOrder === "yes" ? false : true}
               />
             </div>
             <div>
@@ -465,8 +507,8 @@ const NewInvoice = () => {
               </div>
               <select
                 className="input"
-                name="holdingChecques"
-                value={inputs.holdingChecques}
+                name="holdingCheques"
+                value={inputs.holdingCheques}
                 onChange={handleChange}
               >
                 <option value=""></option>
@@ -481,8 +523,8 @@ const NewInvoice = () => {
               </div>
               <select
                 className="input"
-                name="bouncedChecques"
-                value={inputs.bouncedChecques}
+                name="bouncedCheques"
+                value={inputs.bouncedCheques}
                 onChange={handleChange}
               >
                 <option value=""></option>
@@ -516,8 +558,8 @@ const NewInvoice = () => {
               <input
                 type="number"
                 className="input"
-                name="checqueBounceAmount"
-                value={inputs.checqueBounceAmount}
+                name="chequeBounceAmount"
+                value={inputs.chequeBounceAmount}
                 onChange={handleChange}
               />
             </div>
