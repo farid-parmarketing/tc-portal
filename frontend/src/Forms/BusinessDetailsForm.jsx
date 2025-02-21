@@ -4,12 +4,10 @@ import { FaChevronRight } from "react-icons/fa";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import BusinessDetailsModal from "../Modals/BusinessDetailsModal";
-import Cookies from "js-cookie";
 
-const BusinessDetailsForm = ({ user }) => {
-  const { url, generateToken, getUser } = useContext(AppContext);
+const BusinessDetailsForm = () => {
+  const { url, user, generateToken, setCount } = useContext(AppContext);
   const [inputs, setInputs] = useState({
-    customerID: "",
     fullName: "",
     email: "",
     mobile: "",
@@ -18,10 +16,9 @@ const BusinessDetailsForm = ({ user }) => {
     entity: "",
     whatsapp: "",
     position: "",
-    building: "",
+    address: "",
     city: "",
     street: "",
-    tradeLicenseNumber: "",
     msmeRegistered: "",
     msmeNumber: "",
   });
@@ -31,6 +28,7 @@ const BusinessDetailsForm = ({ user }) => {
       ...inputs,
       [name]: value,
     });
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
   //
   useEffect(() => {
@@ -41,100 +39,87 @@ const BusinessDetailsForm = ({ user }) => {
         email: user.Email,
         mobile: user.Mobile,
         businessName: user.Company,
-        customerID: user.id,
       });
     }
   }, [user]);
   //
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
   //
   const [showModal, setShowModal] = useState(false);
-  const validate = (e) => {
-    e.preventDefault();
-    const {
-      entity,
-      whatsapp,
-      position,
-      building,
-      city,
-      street,
-      msmeRegistered,
-    } = inputs;
-    if (!entity) {
-      setIsError(true);
-      setMessage("Select type of entity");
-    } else if (!whatsapp) {
-      setIsError(true);
-      setMessage("Enter you whatsapp number");
-    } else if (!position) {
-      setIsError(true);
-      setMessage("select your position");
-    } else if (!building) {
-      setIsError(true);
-      setMessage("Enter you building name");
-    } else if (!city) {
-      setIsError(true);
-      setMessage("Enter you city");
-    } else if (!street) {
-      setIsError(true);
-      setMessage("Enter you street name");
-    } else if (!msmeRegistered) {
-      setIsError(true);
-      setMessage("Select MSME registered status");
-    } else {
-      setIsError(false);
-      setMessage("");
+  const validateInputs = () => {
+    console.log(inputs);
+    let errors = {};
+    const requiredFields = [
+      "fullName",
+      "email",
+      "mobile",
+      "businessName",
+      "entity",
+      "position",
+      "address",
+      "city",
+      "street",
+      "msmeRegistered",
+    ];
+    requiredFields.forEach((field) => {
+      if (!inputs[field]) {
+        errors[field] = `${field} is required`;
+      }
+    });
+    if (inputs.email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(inputs.email)) {
+      errors.email = "Invalid email format";
+    }
+    if (inputs.mobile && !/^\d{10,15}$/.test(inputs.mobile)) {
+      errors.mobile = "Mobile number should be 10-15 digits long";
+    }
+    if (inputs.whatsapp && !/^\d{10,15}$/.test(inputs.whatsapp)) {
+      errors.whatsapp = "WhatsApp number should be 10-15 digits long";
+    }
+    if (inputs.msmeRegistered.toLowerCase() === "yes" && !inputs.msmeNumber) {
+      errors.msmeNumber = "MSME Number is required";
+    }
+    setErrors(errors);
+    //
+    if (Object.keys(errors).length === 0) {
       setShowModal(true);
     }
   };
   //
   const businessDetails = async (e) => {
     e.preventDefault();
-    const {
-      customerID,
-      fullName,
-      email,
-      mobile,
-      businessName,
-      website,
-      entity,
-      whatsapp,
-      position,
-      building,
-      city,
-      street,
-      tradeLicenseNumber,
-      msmeRegistered,
-      msmeNumber,
-    } = inputs;
     //
-    setIsError(true);
-
     try {
-      const token = Cookies.get("tcm_client_token");
-      const res = await axios.post(`${url}/businessdetails`, {
-        customerID,
-        fullName,
-        email,
-        mobile,
-        businessName,
-        website,
-        entity,
-        whatsapp,
-        position,
-        building,
-        city,
-        street,
-        tradeLicenseNumber,
-        msmeRegistered,
-        msmeNumber,
-        token,
-      });
-      //
-      if (res.data.success === true) {
+      const data = [
+        {
+          Lead_Name: inputs.fullName,
+          Email: inputs.email,
+          Mobile: inputs.mobile,
+          Company: inputs.businessName,
+          Website: inputs.website,
+          Type_of_Entity: inputs.entity,
+          WhatsApp_Number: inputs.whatsapp,
+          Position_In_business: inputs.position,
+          Flat_no_Building_name: inputs.address,
+          City: inputs.city,
+          Street: inputs.street,
+          MSME_Number: inputs.msmeNumber,
+          Step: "1",
+        },
+      ];
+      const token = await generateToken();
+      const res = await axios.put(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}`,
+        data,
+        {
+          headers: { Authorization: `Zoho-oauthtoken ${token}` },
+        }
+      );
+      if (res.status === 200) {
+        setIsError(false);
+        setMessage("Data saved");
         setInputs({
-          customerID: "",
           fullName: "",
           email: "",
           mobile: "",
@@ -143,27 +128,15 @@ const BusinessDetailsForm = ({ user }) => {
           entity: "",
           whatsapp: "",
           position: "",
-          building: "",
+          address: "",
           city: "",
           street: "",
-          tradeLicenseNumber: "",
           msmeRegistered: "",
           msmeNumber: "",
         });
-        setIsError(false);
-        setMessage(res.data.message);
-        getUser();
-      } else if (res.data.success === false) {
-        if (res.data.code === 400) {
-          setIsError(true);
-          setMessage(
-            "Token expired. Limit reached. Please retry after some time."
-          );
-        } else if (res.data.code === 401) {
-          setIsError(true);
-          setMessage("Token expired. Please try again.");
-          generateToken();
-        }
+        setCount((prev) => {
+          return prev + 1;
+        });
       }
     } catch (error) {
       console.log(error);
@@ -193,6 +166,7 @@ const BusinessDetailsForm = ({ user }) => {
               onChange={handleInputs}
               disabled={true}
             />
+            <small className="text-danger">{errors.fullName}</small>
           </div>
           <div>
             <label>
@@ -206,6 +180,7 @@ const BusinessDetailsForm = ({ user }) => {
               onChange={handleInputs}
               disabled={true}
             />
+            <small className="text-danger">{errors.email}</small>
           </div>
           <div>
             <label>
@@ -219,6 +194,7 @@ const BusinessDetailsForm = ({ user }) => {
               onChange={handleInputs}
               disabled={true}
             />
+            <small className="text-danger">{errors.mobile}</small>
           </div>
           <div>
             <label>
@@ -232,6 +208,7 @@ const BusinessDetailsForm = ({ user }) => {
               onChange={handleInputs}
               disabled={true}
             />
+            <small className="text-danger">{errors.businessName}</small>
           </div>
           <div>
             <label>Website</label>
@@ -262,11 +239,10 @@ const BusinessDetailsForm = ({ user }) => {
                 );
               })}
             </select>
+            <small className="text-danger">{errors.entity}</small>
           </div>
           <div>
-            <label>
-              Whatsapp number <span className="text-danger">*</span>
-            </label>
+            <label>Whatsapp number</label>
             <input
               type="text"
               className="input"
@@ -294,18 +270,20 @@ const BusinessDetailsForm = ({ user }) => {
                 );
               })}
             </select>
+            <small className="text-danger">{errors.position}</small>
           </div>
           <div>
             <label>
-              Address <span className="text-danger">*</span>
+              Flat no/ building name <span className="text-danger">*</span>
             </label>
             <input
               type="text"
               className="input"
-              name="building"
-              value={inputs.building}
+              name="address"
+              value={inputs.address}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.address}</small>
           </div>
           <div>
             <label>
@@ -318,6 +296,7 @@ const BusinessDetailsForm = ({ user }) => {
               value={inputs.city}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.city}</small>
           </div>
           <div>
             <label>
@@ -330,16 +309,7 @@ const BusinessDetailsForm = ({ user }) => {
               value={inputs.street}
               onChange={handleInputs}
             />
-          </div>
-          <div>
-            <label>Trade License Number</label>
-            <input
-              type="text"
-              className="input"
-              name="tradeLicenseNumber"
-              value={inputs.tradeLicenseNumber}
-              onChange={handleInputs}
-            />
+            <small className="text-danger">{errors.street}</small>
           </div>
           <div>
             <label>
@@ -355,6 +325,7 @@ const BusinessDetailsForm = ({ user }) => {
               <option value="Yes">Yes</option>
               <option value="No">No</option>
             </select>
+            <small className="text-danger">{errors.msmeRegistered}</small>
           </div>
           {inputs.msmeRegistered.toLowerCase() === "yes" ? (
             <div>
@@ -366,6 +337,7 @@ const BusinessDetailsForm = ({ user }) => {
                 value={inputs.msmeNumber}
                 onChange={handleInputs}
               />
+              <small className="text-danger">{errors.msmeNumber}</small>
             </div>
           ) : (
             ""
@@ -379,7 +351,7 @@ const BusinessDetailsForm = ({ user }) => {
           {message}
         </p>
         <div className="d-flex align-items-center justify-content-end">
-          <button className="button icon-button" onClick={validate}>
+          <button className="button icon-button" onClick={validateInputs}>
             Next
             <FaChevronRight />
           </button>

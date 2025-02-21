@@ -5,7 +5,7 @@ import { AppContext } from "../context/AppContext";
 import Cookies from "js-cookie";
 
 const UploadDocumentsForm = ({ user }) => {
-  const { url, generateToken, getUser } = useContext(AppContext);
+  const { url, generateToken } = useContext(AppContext);
   const [tradeLicenseNumber, setTradeLicenseNumber] = useState(null);
   const [msmeNumber, setmsmeNumber] = useState(null);
   const [cancelledCheque, setcancelledCheque] = useState(null);
@@ -56,7 +56,6 @@ const UploadDocumentsForm = ({ user }) => {
             if (res2.data.success === true) {
               setIsError(false);
               setMessage(res2.data.message);
-              getUser();
             } else if (res2.data.success === false) {
               if (res2.data.code === 400) {
                 setIsError(true);

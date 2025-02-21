@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 
 const Auth = ({ Component }) => {
+  const { setCount } = useContext(AppContext);
   const {
     url,
     generateToken,
@@ -49,6 +50,7 @@ const Auth = ({ Component }) => {
           }
         }
         setUser(userData);
+        setCount(userData.Step);
       }
     } catch (error) {
       console.log(error);

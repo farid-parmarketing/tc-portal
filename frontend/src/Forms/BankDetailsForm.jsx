@@ -6,7 +6,7 @@ import BankDetailsModal from "../Modals/BankDetailsModal";
 import Cookies from "js-cookie";
 
 const BankDetailsForm = ({ user }) => {
-  const { url, generateToken, getUser } = useContext(AppContext);
+  const { url, generateToken } = useContext(AppContext);
   const [inputs, setInputs] = useState({
     customerID: "",
     bankName: "",
@@ -108,7 +108,6 @@ const BankDetailsForm = ({ user }) => {
         });
         setIsError(false);
         setMessage(res.data.message);
-        getUser();
       } else if (res.data.success === false) {
         if (res.data.code === 400) {
           setIsError(true);
