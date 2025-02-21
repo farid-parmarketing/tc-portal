@@ -17,12 +17,27 @@ const BankDetailsModal = ({
         <div className="business-details-modal-body">
           <h2 className="mb-2">Business details</h2>
           <div>
-            <p>Bank Name : {inputs.bankName}</p>
-            <p>Account Number : {inputs.accountNumber}</p>
-            <p>Type of bank Account : {inputs.accountType}</p>
-            <p>IFSC code : {inputs.IFSC}</p>
-            <p>Branch Name : {inputs.branch}</p>
-            <p>Name on Bank Account : {inputs.nameOnBankAccount}</p>
+            <p>
+              Bank Name : <span className="fw-bold">{inputs.bankName}</span>
+            </p>
+            <p>
+              Account Number :{" "}
+              <span className="fw-bold">{inputs.accountNumber}</span>
+            </p>
+            <p>
+              Type of bank Account :{" "}
+              <span className="fw-bold">{inputs.accountType}</span>
+            </p>
+            <p>
+              IFSC code : <span className="fw-bold">{inputs.IFSC}</span>
+            </p>
+            <p>
+              Branch Name : <span className="fw-bold">{inputs.branch}</span>
+            </p>
+            <p>
+              Name on Bank Account :{" "}
+              <span className="fw-bold">{inputs.nameOnBankAccount}</span>
+            </p>
           </div>
           {/*  */}
           <p

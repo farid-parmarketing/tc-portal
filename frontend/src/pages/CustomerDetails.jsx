@@ -13,7 +13,7 @@ const CustomerDetails = () => {
     <>
       <div className="container">
         {count !== "3" && <Steps />}
-        {count === "" && <BusinessDetailsForm user={user} />}
+        {count === "" && <BusinessDetailsForm />}
         {count === "1" && <BankDetailsForm user={user} />}
         {count === "2" && <UploadDocumentsForm user={user} />}
         {count === "3" && <Payment user={user} />}

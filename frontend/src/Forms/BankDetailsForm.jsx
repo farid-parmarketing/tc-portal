@@ -1,14 +1,12 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import BankDetailsModal from "../Modals/BankDetailsModal";
-import Cookies from "js-cookie";
 
-const BankDetailsForm = ({ user }) => {
-  const { url, generateToken } = useContext(AppContext);
+const BankDetailsForm = () => {
+  const { url, user, generateToken, setCount } = useContext(AppContext);
   const [inputs, setInputs] = useState({
-    customerID: "",
     bankName: "",
     accountNumber: "",
     accountType: "",
@@ -22,83 +20,63 @@ const BankDetailsForm = ({ user }) => {
       ...inputs,
       [name]: value,
     });
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
-  //
-  useEffect(() => {
-    if (user !== null) {
-      setInputs({
-        ...inputs,
-        customerID: user.id,
-      });
-    }
-  }, [user]);
   //
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
   //
   const [showModal, setShowModal] = useState(false);
-  const validate = (e) => {
+  const validateInputs = (e) => {
     e.preventDefault();
-    const {
-      bankName,
-      accountNumber,
-      accountType,
-      IFSC,
-      branch,
-      nameOnBankAccount,
-    } = inputs;
-    if (!bankName) {
-      setIsError(true);
-      setMessage("Enter your bank name");
-    } else if (!accountNumber) {
-      setIsError(true);
-      setMessage("Enter you whatsaccount number");
-    } else if (!accountType) {
-      setIsError(true);
-      setMessage("select your account type");
-    } else if (!IFSC) {
-      setIsError(true);
-      setMessage("Enter you IFSC code");
-    } else if (!branch) {
-      setIsError(true);
-      setMessage("Enter yor bank branch name");
-    } else if (!nameOnBankAccount) {
-      setIsError(true);
-      setMessage("Enter you street name on bank account");
-    } else {
-      setIsError(false);
-      setMessage("");
+    let errors = {};
+    const requiredFields = [
+      "bankName",
+      "accountNumber",
+      "accountType",
+      "IFSC",
+      "branch",
+      "nameOnBankAccount",
+    ];
+    requiredFields.forEach((field) => {
+      if (!inputs[field]) {
+        errors[field] = `${field} is required`;
+      }
+    });
+    setErrors(errors);
+    //
+    if (Object.keys(errors).length === 0) {
       setShowModal(true);
     }
   };
   //
   const bankDetails = async (e) => {
     e.preventDefault();
-    const {
-      customerID,
-      bankName,
-      accountNumber,
-      accountType,
-      IFSC,
-      branch,
-      nameOnBankAccount,
-    } = inputs;
     try {
-      const token = Cookies.get("tcm_client_token");
-      const res = await axios.post(`${url}/bankdetails`, {
-        customerID,
-        bankName,
-        accountNumber,
-        accountType,
-        IFSC,
-        branch,
-        nameOnBankAccount,
-        token,
-      });
-      //
-      if (res.data.success === true) {
+      const token = await generateToken();
+      const data = [
+        {
+          Bank_Name: inputs.bankName,
+          Account_Number: inputs.accountNumber,
+          Account_Type: inputs.accountType,
+          IFSC: inputs.IFSC,
+          Branch_Name: inputs.branch,
+          Name_on_Account: inputs.nameOnBankAccount,
+          Step: "2",
+        },
+      ];
+      const res = await axios.put(
+        `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}`,
+        data,
+        {
+          headers: { Authorization: `Zoho-oauthtoken ${token}` },
+        }
+      );
+      if (res.status === 200) {
+        setIsError(false);
+        setMessage("Data saved");
         setInputs({
-          customerID: "",
           bankName: "",
           accountNumber: "",
           accountType: "",
@@ -106,19 +84,9 @@ const BankDetailsForm = ({ user }) => {
           branch: "",
           nameOnBankAccount: "",
         });
-        setIsError(false);
-        setMessage(res.data.message);
-      } else if (res.data.success === false) {
-        if (res.data.code === 400) {
-          setIsError(true);
-          setMessage(
-            "Token expired. Limit reached. Please retry after some time."
-          );
-        } else if (res.data.code === 401) {
-          setIsError(true);
-          setMessage("Token expired. Please try again.");
-          generateToken();
-        }
+        setCount((prev) => {
+          return prev + 1;
+        });
       }
     } catch (error) {
       console.log(error);
@@ -146,6 +114,7 @@ const BankDetailsForm = ({ user }) => {
               value={inputs.bankName}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.bankName}</small>
           </div>
           <div>
             <label>
@@ -158,6 +127,7 @@ const BankDetailsForm = ({ user }) => {
               value={inputs.accountNumber}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.accountNumber}</small>
           </div>
           <div>
             <label>
@@ -173,6 +143,7 @@ const BankDetailsForm = ({ user }) => {
               <option value="Savings">Savings</option>
               <option value="Current">Current</option>
             </select>
+            <small className="text-danger">{errors.accountType}</small>
           </div>
           <div>
             <label>
@@ -185,6 +156,7 @@ const BankDetailsForm = ({ user }) => {
               value={inputs.IFSC}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.IFSC}</small>
           </div>
           <div>
             <label>
@@ -197,6 +169,7 @@ const BankDetailsForm = ({ user }) => {
               value={inputs.branch}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.branch}</small>
           </div>
           <div>
             <label>
@@ -209,6 +182,7 @@ const BankDetailsForm = ({ user }) => {
               value={inputs.nameOnBankAccount}
               onChange={handleInputs}
             />
+            <small className="text-danger">{errors.nameOnBankAccount}</small>
           </div>
         </div>
         <p
@@ -219,7 +193,7 @@ const BankDetailsForm = ({ user }) => {
           {message}
         </p>
         <div className="d-flex align-items-center justify-content-end">
-          <button className="button icon-button" onClick={validate}>
+          <button className="button icon-button" onClick={validateInputs}>
             Next
             <FaChevronRight />
           </button>
