@@ -2,79 +2,133 @@ import React, { useContext, useMemo, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
-import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const UploadDocumentsForm = ({ user }) => {
   const { url, generateToken } = useContext(AppContext);
-  const [tradeLicenseNumber, setTradeLicenseNumber] = useState(null);
-  const [msmeNumber, setmsmeNumber] = useState(null);
-  const [cancelledCheque, setcancelledCheque] = useState(null);
+  const navigate = useNavigate();
+  //
+  const [documents, setDocuments] = useState({
+    pan: null,
+    aadhar: null,
+    gst: null,
+    companyPan: null,
+    cin: null,
+    msme: null,
+  });
+  const allowedFileTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+  ];
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (!allowedFileTypes.includes(file.type)) {
+      alert("Only JPG, JPEG, PNG, and PDF files are allowed!");
+      e.target.value = "";
+      return;
+    }
+
+    setDocuments((prev) => ({
+      ...prev,
+      [e.target.name]: file,
+    }));
+  };
   //
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState("");
   const uploadDocuments = async (e) => {
     e.preventDefault();
-    if (tradeLicenseNumber === null) {
+
+    const allFilesPresent = Object.values(documents).every(
+      (file) => file !== null
+    );
+    if (!allFilesPresent) {
       setIsError(true);
-      setMessage("Please upload your Trade License Number document");
-    } else if (msmeNumber === null) {
-      setIsError(true);
-      setMessage("Please upload your MSME Number document");
-    } else if (cancelledCheque === null) {
-      setIsError(true);
-      setMessage("Please upload your Cancelled Cheque document");
-    } else {
-      const formData = new FormData();
-      formData.append("tradeLicenseNumber", tradeLicenseNumber);
-      formData.append("msmeNumber", msmeNumber);
-      formData.append("cancelledCheque", cancelledCheque);
-      //
-      const token = Cookies.get("tcm_client_token");
-      try {
-        const maxFileSizeInMB = 5;
-        const maxFileSizeInKB = 1024 * 1024 * maxFileSizeInMB;
-        if (tradeLicenseNumber.size > maxFileSizeInKB) {
-          setIsError(true);
-          setMessage(`Trade License Number file size is ${maxFileSizeInMB}mb`);
-        } else if (msmeNumber.size > maxFileSizeInKB) {
-          setIsError(true);
-          setMessage(`MSME Number file size is ${maxFileSizeInMB}mb`);
-        } else if (cancelledCheque.size > maxFileSizeInKB) {
-          setIsError(true);
-          setMessage(`Cancelled Cheque file size is ${maxFileSizeInMB}mb`);
-        } else {
-          const res = await axios.post(`${url}/uploaddocuments`, formData);
-          if (res.status === 200) {
-            const res2 = await axios.post(`${url}/confirmdocuments`, {
-              tradeLicenseNumber: res.data.result.tradeLicenseNumberURL,
-              msmeNumber: res.data.result.msmeNumberURL,
-              cancelledCheque: res.data.result.cancelledChequeURL,
-              customerID: user.id,
-              token: token,
-            });
-            //
-            if (res2.data.success === true) {
-              setIsError(false);
-              setMessage(res2.data.message);
-            } else if (res2.data.success === false) {
-              if (res2.data.code === 400) {
-                setIsError(true);
-                setMessage(
-                  "Token expired. Limit reached. Please retry after some time."
-                );
-              } else if (res2.data.code === 401) {
-                setIsError(true);
-                setMessage("Token expired. Please try again.");
-                generateToken();
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.log(error);
+      setMessage("Please upload all required documents.");
+      return;
+    }
+
+    const maxSize = 2 * 1024 * 1024;
+    const oversizedFiles = Object.entries(documents).filter(
+      ([key, file]) => file && file.size > maxSize
+    );
+    if (oversizedFiles.length > 0) {
+      alert(
+        `The following files exceed 2MB:\n${oversizedFiles
+          .map(([key]) => key)
+          .join(", ")}`
+      );
+      return;
+    }
+
+    // Create FormData object
+    const formData = new FormData();
+    Object.entries(documents).forEach(([key, file]) => {
+      if (file) {
+        formData.append(key, file); // Append field name (key) along with file
       }
+    });
+
+    try {
+      const res = await axios.post(`${url}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (res.status === 200) {
+        const fieldURL = {
+          pan: "",
+          aadhar: "",
+          gst: "",
+          companyPan: "",
+          cin: "",
+          msme: "",
+        };
+        res.data.files.forEach((item) => {
+          fieldURL[item.fieldName] = item.filename;
+        });
+        const data = [
+          {
+            Pan_Card_URL: `https://api.tauruscollection.com/public/${fieldURL.pan}`,
+            Aadhar_Card_URL: `https://api.tauruscollection.com/public/${fieldURL.aadhar}`,
+            GST_URL: `https://api.tauruscollection.com/public/${fieldURL.gst}`,
+            Company_Pan_URL: `https://api.tauruscollection.com/public/${fieldURL.companyPan}`,
+            CIN_Number_URL: `https://api.tauruscollection.com/public/${fieldURL.cin}`,
+            MSME_Number_URL: `https://api.tauruscollection.com/public/${fieldURL.msme}`,
+            Step: "3",
+          },
+        ];
+        const token = await generateToken();
+        const zRes = await axios.put(
+          `${url}/proxy?url=https://www.zohoapis.in/crm/v2/Leads/${user.id}`,
+          data,
+          {
+            headers: { Authorization: `Zoho-oauthtoken ${token}` },
+          }
+        );
+        if (zRes.status === 200) {
+          setIsError(false);
+          setMessage("Files uploaded successfully");
+          setDocuments({
+            pan: null,
+            aadhar: null,
+            gst: null,
+            companyPan: null,
+            cin: null,
+            msme: null,
+          });
+          navigate("/", { replace: true });
+        }
+      }
+    } catch (error) {
+      console.error("Upload error:", error.response?.data || error.message);
     }
   };
+
   //
   useMemo(() => {
     if (message !== "") {
@@ -88,11 +142,48 @@ const UploadDocumentsForm = ({ user }) => {
       <form>
         <div className="details-form">
           <div>
-            <label>Trade License Number</label>
+            <label>PAN card</label>
             <input
               type="file"
               className="input"
-              onChange={(e) => setTradeLicenseNumber(e.target.files[0])}
+              name="pan"
+              onChange={handleFile}
+            />
+          </div>
+          <div>
+            <label>Aadhar card</label>
+            <input
+              type="file"
+              className="input"
+              name="aadhar"
+              onChange={handleFile}
+            />
+          </div>
+          <div>
+            <label>GST</label>
+            <input
+              type="file"
+              className="input"
+              name="gst"
+              onChange={handleFile}
+            />
+          </div>
+          <div>
+            <label>Company PAN card</label>
+            <input
+              type="file"
+              className="input"
+              name="companyPan"
+              onChange={handleFile}
+            />
+          </div>
+          <div>
+            <label>CIN</label>
+            <input
+              type="file"
+              className="input"
+              name="cin"
+              onChange={handleFile}
             />
           </div>
           <div>
@@ -100,20 +191,9 @@ const UploadDocumentsForm = ({ user }) => {
             <input
               type="file"
               className="input"
-              onChange={(e) => setmsmeNumber(e.target.files[0])}
+              name="msme"
+              onChange={handleFile}
             />
-          </div>
-          <div>
-            <label>cancelled cheque</label>
-            <input
-              type="file"
-              className="input"
-              onChange={(e) => setcancelledCheque(e.target.files[0])}
-            />
-          </div>
-          <div>
-            <label>Notes</label>
-            <textarea className="input"></textarea>
           </div>
         </div>
         <p

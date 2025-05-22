@@ -51,7 +51,6 @@ const generateToken = async () => {
   }
 };
 cron.schedule("*/10 * * * *", () => {
-  console.log("Running generateToken...");
   generateToken();
 });
 
